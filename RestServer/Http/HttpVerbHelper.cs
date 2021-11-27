@@ -2,22 +2,22 @@
 {
     internal class HttpVerbHelper
     {
-        private static readonly Dictionary<string, HttpVerb> Verbs = new();
+        private static readonly Dictionary<string, Method> Verbs = new();
 
         static HttpVerbHelper()
         {
-            foreach (HttpVerb verb in Enum.GetValues(typeof(HttpVerb)))
+            foreach (Method verb in Enum.GetValues(typeof(Method)))
             {
                 Verbs.Add(verb.ToString(), verb);
             }
         }
 
-        public static HttpVerb FromName(string name)
+        public static Method FromName(string name)
         {
             return Verbs[name];
         }
 
-        public static string ToName(HttpVerb verb)
+        public static string ToName(Method verb)
         {
             return verb.ToString();
         }

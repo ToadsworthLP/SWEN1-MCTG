@@ -9,10 +9,14 @@ namespace Rest
         private IPAddress Address;
         private int Port;
 
+        private ControllerRegistry controllers;
+
         public RestServer(IPAddress adress, int port)
         {
             this.Address = adress;
             this.Port = port;
+
+            controllers = new ControllerRegistry();
         }
 
         public void Start()
@@ -28,14 +32,19 @@ namespace Rest
                     using (StreamReader reader = new StreamReader(client.GetStream()))
                     using (StreamWriter writer = new StreamWriter(client.GetStream()) { AutoFlush = true })
                     {
-                        HttpRequest request;
+                        IApiRequest request;
                         request = new HttpRequest(reader);
 
-                        RequestHandler requestHandler = new RequestHandler(writer);
+                        RequestHandler requestHandler = new RequestHandler(controllers, writer);
                         requestHandler.Handle(request);
                     }
                 });
             }
+        }
+
+        public void AddController<T>() where T : new()
+        {
+            controllers.AddController<T>();
         }
     }
 }

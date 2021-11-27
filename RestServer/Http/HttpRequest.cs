@@ -1,12 +1,14 @@
 ﻿namespace Rest.Http
 {
-    internal class HttpRequest
+    internal class HttpRequest : IApiRequest
     {
-        public HttpVerb Method { get; private set; }
+        public Method Method { get; private set; }
         public string Path { get; private set; }
+        public string Content { get; private set; }
+        public string? AuthToken { get; private set; }
         public string Version { get; private set; }
         public Dictionary<string, string> Headers { get; private set; }
-        public string Content { get; private set; }
+
 
         public HttpRequest(StreamReader reader)
         {
@@ -41,6 +43,16 @@
             }
 
             ParseContent(reader);
+
+            if (Headers.TryGetValue("Authorization", out string authInfo))
+            {
+                int splitIndex = Headers["Authorization"].IndexOf(' ');
+                AuthToken = authInfo.Substring(splitIndex + 2);
+            }
+            else
+            {
+                AuthToken = null;
+            }
         }
 
         private void ParseMethod(string line)
@@ -61,8 +73,7 @@
 
         private void ParseContent(StreamReader reader)
         {
-            string? contentLengthStr;
-            if (Headers.TryGetValue("Content-Length", out contentLengthStr) && contentLengthStr != null)
+            if (Headers.TryGetValue("Content-Length", out string? contentLengthStr) && contentLengthStr != null)
             {
                 int contentLength = int.Parse(contentLengthStr);
 
@@ -71,6 +82,8 @@
 
                 Content = new string(buffer);
             }
+
+            if (Content == null) Content = "{}";
         }
 
         private enum Section

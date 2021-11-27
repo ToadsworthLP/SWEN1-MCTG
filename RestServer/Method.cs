@@ -1,6 +1,6 @@
-﻿namespace Rest.Http
+﻿namespace Rest
 {
-    internal enum HttpVerb
+    public enum Method
     {
         GET, POST, PUT, PATCH, DELETE, CONNECT, OPTIONS, TRACE, HEAD
     }
