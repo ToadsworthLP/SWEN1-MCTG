@@ -1,20 +1,20 @@
 ﻿namespace Rest.Http
 {
-    internal class HttpVerbHelper
+    internal class HttpMethodHelper
     {
-        private static readonly Dictionary<string, Method> Verbs = new();
+        private static readonly Dictionary<string, Method> Methods = new();
 
-        static HttpVerbHelper()
+        static HttpMethodHelper()
         {
             foreach (Method verb in Enum.GetValues(typeof(Method)))
             {
-                Verbs.Add(verb.ToString(), verb);
+                Methods.Add(verb.ToString(), verb);
             }
         }
 
         public static Method FromName(string name)
         {
-            return Verbs[name];
+            return Methods[name];
         }
 
         public static string ToName(Method verb)

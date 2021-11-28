@@ -7,12 +7,22 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/echo")]
-    internal class EchoController : IGet<EchoRequest>
+    internal class EchoController
     {
+        [Method(Method.GET)]
         public IApiResponse Get(EchoRequest request)
         {
             EchoResponse response = new EchoResponse();
             response.Content = request.Content;
+
+            return new Ok(response);
+        }
+
+        [Method(Method.GET)]
+        public IApiResponse Test()
+        {
+            EchoResponse response = new EchoResponse();
+            response.Content = "Hello World";
 
             return new Ok(response);
         }

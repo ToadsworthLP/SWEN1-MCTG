@@ -1,7 +1,7 @@
 ﻿namespace Rest.Attributes
 {
     [AttributeUsage(AttributeTargets.Method)]
-    internal class MethodAttribute : Attribute
+    public class MethodAttribute : Attribute
     {
         public Method Method { get; }
 

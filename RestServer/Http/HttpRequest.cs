@@ -58,7 +58,7 @@
         private void ParseMethod(string line)
         {
             string[] parts = line.Split(' ');
-            Method = HttpVerbHelper.FromName(parts[0]);
+            Method = HttpMethodHelper.FromName(parts[0]);
             Path = parts[1];
             Version = parts[2];
         }

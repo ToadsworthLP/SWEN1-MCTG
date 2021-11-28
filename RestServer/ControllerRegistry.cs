@@ -6,12 +6,12 @@ namespace Rest
     public class ControllerRegistry
     {
         private Dictionary<string, Type> Controllers { get; }
-        private Dictionary<(Type, Method), MethodInfo> Routes { get; }
+        private Dictionary<RouteInfo, MethodInfo> Routes { get; }
 
         public ControllerRegistry()
         {
             Controllers = new Dictionary<string, Type>();
-            Routes = new Dictionary<(Type, Method), MethodInfo>();
+            Routes = new Dictionary<RouteInfo, MethodInfo>();
         }
 
         public void AddController<T>() where T : new()
@@ -21,28 +21,35 @@ namespace Rest
             {
                 Controllers.Add(((RouteAttribute)routeAttribute).Route, typeof(T));
 
-                Type[] interfaces = typeof(T).FindInterfaces((Type typeObj, object criteriaOb) =>
+                MethodInfo[] candidates = typeof(T).GetMethods();
+                foreach (MethodInfo method in candidates)
                 {
-                    return typeObj.IsAssignableTo(typeof(IControllerMethod)) && typeObj != typeof(IControllerMethod);
-                }, null);
+                    MethodAttribute? methodAttr = method.GetCustomAttribute<MethodAttribute>();
+                    bool hasParameter = method.GetParameters().Length > 0;
 
-                foreach (Type type in interfaces)
-                {
-                    foreach (MethodInfo method in type.GetMethods())
+                    if (methodAttr == null) continue;
+
+                    if (Routes.ContainsKey(new RouteInfo(typeof(T), methodAttr.Method, hasParameter)))
                     {
-                        MethodAttribute? methodAttr = method.GetCustomAttribute<MethodAttribute>();
-                        if (methodAttr == null) continue;
-
-                        if (!Routes.ContainsKey((typeof(T), methodAttr.Method)))
-                        {
-                            Routes.Add((typeof(T), methodAttr.Method), method);
-                        }
+                        throw new ArgumentException($"Multiple handlers with equal argument count found for method {methodAttr.Method} in controller {typeof(T).Name}.");
                     }
+
+                    if (!method.ReturnType.IsAssignableTo(typeof(IApiResponse)))
+                    {
+                        throw new ArgumentException($"Invalid return type in method {methodAttr.Method} in controller {typeof(T).Name}. Handler methods must return a type implementing IApiResponse.");
+                    }
+
+                    if (method.GetParameters().Length > 1)
+                    {
+                        throw new ArgumentException($"Invalid parameters in method {methodAttr.Method} in controller {typeof(T).Name}. Handler methods must take at most one parameter.");
+                    }
+
+                    Routes.Add(new RouteInfo(typeof(T), methodAttr.Method, hasParameter), method);
                 }
             }
             else
             {
-                throw new ArgumentException("Passed controller type does not have a Route attribute.");
+                throw new ArgumentException($"Passed controller type {typeof(T).Name} does not have a Route attribute.");
             }
         }
 
@@ -55,18 +62,32 @@ namespace Rest
             }
 
             MethodInfo methodInfo;
-            if (!Routes.TryGetValue((controllerType, request.Method), out methodInfo))
+            if (!Routes.TryGetValue(new RouteInfo(controllerType, request.Method, request.Content != ""), out methodInfo))
             {
                 return null;
             }
 
-            object controller = Activator.CreateInstance(controllerType);
-            return new HandlerInfo((parameter) =>
+            object? controller = Activator.CreateInstance(controllerType);
+
+            ParameterInfo[] parameterInfos = methodInfo.GetParameters();
+            if (parameterInfos.Length == 0)
             {
-                return (IApiResponse)methodInfo.Invoke(controller, new object[1] { parameter });
-            }, methodInfo.DeclaringType.GenericTypeArguments[0]);
+                return new HandlerInfo((parameter) =>
+                {
+                    return (IApiResponse)methodInfo.Invoke(controller, null);
+                }, null);
+            }
+            else
+            {
+                return new HandlerInfo((parameter) =>
+                {
+                    return (IApiResponse)methodInfo.Invoke(controller, new object[1] { parameter });
+                }, parameterInfos[0].ParameterType);
+            }
         }
     }
 
-    public record HandlerInfo(Func<object, IApiResponse> Handler, Type ParameterType);
+    public record HandlerInfo(Func<object?, IApiResponse?> Handler, Type? ParameterType);
+
+    internal record RouteInfo(Type controllerType, Method method, bool hasParameter);
 }
