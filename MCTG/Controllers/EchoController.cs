@@ -1,4 +1,5 @@
-﻿using MCTG.Requests;
+﻿using MCTG.Auth;
+using MCTG.Requests;
 using MCTG.Responses;
 using Rest;
 using Rest.Attributes;
@@ -19,10 +20,11 @@ namespace MCTG.Controllers
         }
 
         [Method(Method.GET)]
+        [Restrict(Role.ADMIN)]
         public IApiResponse Test()
         {
             EchoResponse response = new EchoResponse();
-            response.Content = "Hello World";
+            response.Content = "Hello, Admin!";
 
             return new Ok(response);
         }

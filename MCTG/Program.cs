@@ -1,4 +1,5 @@
-﻿using MCTG.Controllers;
+﻿using MCTG.Auth;
+using MCTG.Controllers;
 using Rest;
 
 namespace MCTG
@@ -11,7 +12,7 @@ namespace MCTG
             RestServer server = new RestServer(System.Net.IPAddress.Any, 25567);
 
             server.AddController<EchoController>();
-
+            server.AddAuth<AuthHandler>();
             server.Start();
 
         }

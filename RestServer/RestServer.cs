@@ -6,22 +6,24 @@ namespace Rest
 {
     public class RestServer
     {
-        private IPAddress Address;
-        private int Port;
+        private IPAddress address;
+        private int port;
 
         private ControllerRegistry controllers;
 
+        private Type authHandlerType;
+
         public RestServer(IPAddress adress, int port)
         {
-            this.Address = adress;
-            this.Port = port;
+            this.address = adress;
+            this.port = port;
 
             controllers = new ControllerRegistry();
         }
 
         public void Start()
         {
-            TcpListener listener = new TcpListener(Address, Port);
+            TcpListener listener = new TcpListener(address, port);
             listener.Start();
 
             while (true)
@@ -34,8 +36,18 @@ namespace Rest
                     {
                         IApiRequest request;
                         request = new HttpRequest(reader);
+                        RequestHandler requestHandler;
 
-                        RequestHandler requestHandler = new RequestHandler(controllers, writer);
+                        if (authHandlerType == null)
+                        {
+                            requestHandler = new RequestHandler(controllers, writer);
+                        }
+                        else
+                        {
+                            IAuthHandler? authHandler = (IAuthHandler)Activator.CreateInstance(authHandlerType);
+                            requestHandler = new RequestHandler(controllers, writer, authHandler);
+                        }
+
                         requestHandler.Handle(request);
                     }
                 });
@@ -45,6 +57,11 @@ namespace Rest
         public void AddController<T>() where T : new()
         {
             controllers.AddController<T>();
+        }
+
+        public void AddAuth<T>() where T : IAuthHandler, new()
+        {
+            authHandlerType = typeof(T);
         }
     }
 }

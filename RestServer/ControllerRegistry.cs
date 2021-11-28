@@ -53,7 +53,18 @@ namespace Rest
             }
         }
 
-        public HandlerInfo? GetHandler(IApiRequest request)
+        public Type? GetControllerType(IApiRequest request)
+        {
+            Type controllerType;
+            if (!Controllers.TryGetValue(request.Path, out controllerType))
+            {
+                return null;
+            }
+
+            return controllerType;
+        }
+
+        public MethodInfo? GetHandler(IApiRequest request)
         {
             Type controllerType;
             if (!Controllers.TryGetValue(request.Path, out controllerType))
@@ -67,27 +78,11 @@ namespace Rest
                 return null;
             }
 
-            object? controller = Activator.CreateInstance(controllerType);
-
-            ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-            if (parameterInfos.Length == 0)
-            {
-                return new HandlerInfo((parameter) =>
-                {
-                    return (IApiResponse)methodInfo.Invoke(controller, null);
-                }, null);
-            }
-            else
-            {
-                return new HandlerInfo((parameter) =>
-                {
-                    return (IApiResponse)methodInfo.Invoke(controller, new object[1] { parameter });
-                }, parameterInfos[0].ParameterType);
-            }
+            return methodInfo;
         }
     }
 
     public record HandlerInfo(Func<object?, IApiResponse?> Handler, Type? ParameterType);
 
-    internal record RouteInfo(Type controllerType, Method method, bool hasParameter);
+    internal record RouteInfo(Type ControllerType, Method Method, bool HasParameter);
 }

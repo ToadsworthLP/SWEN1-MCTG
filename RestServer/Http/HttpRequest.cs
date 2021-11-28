@@ -47,7 +47,7 @@
             if (Headers.TryGetValue("Authorization", out string authInfo))
             {
                 int splitIndex = Headers["Authorization"].IndexOf(' ');
-                AuthToken = authInfo.Substring(splitIndex + 2);
+                AuthToken = authInfo.Substring(splitIndex + 1);
             }
             else
             {
@@ -66,6 +66,9 @@
         private void ParseHeader(string line)
         {
             int splitIndex = line.IndexOf(':');
+
+            if (splitIndex + 2 >= line.Length) return;
+
             string key = line.Substring(0, splitIndex);
             string value = line.Substring(splitIndex + 2);
             Headers.Add(key, value);

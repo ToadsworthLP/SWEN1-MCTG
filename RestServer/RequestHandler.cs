@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Rest.Attributes;
 using Rest.Http;
 using Rest.ResponseTypes;
+using System.Reflection;
 
 namespace Rest
 {
@@ -8,26 +10,42 @@ namespace Rest
     {
         private readonly ControllerRegistry registry;
         private readonly StreamWriter writer;
+        private readonly IAuthHandler? authHandler;
 
         public RequestHandler(ControllerRegistry registry, StreamWriter writer)
         {
             this.registry = registry;
             this.writer = writer;
+            this.authHandler = null;
+        }
+
+        public RequestHandler(ControllerRegistry registry, StreamWriter writer, IAuthHandler? authHandler)
+        {
+            this.registry = registry;
+            this.writer = writer;
+            this.authHandler = authHandler;
         }
 
         public void Handle(IApiRequest request)
         {
-            var handlerInfo = registry.GetHandler(request);
+            IApiResponse? response = null;
 
-            IApiResponse response;
-            if (handlerInfo != null)
+            Type? controllerType = registry.GetControllerType(request);
+            MethodInfo? methodInfo = registry.GetHandler(request);
+
+            if (ValidateRequest(request, ref response, methodInfo))
             {
-                if (handlerInfo.ParameterType != null)
+                object? controller = Activator.CreateInstance(controllerType);
+
+                ParameterInfo[] parameterInfos = methodInfo.GetParameters();
+                Type? parameterType = parameterInfos.Length > 0 ? parameterInfos[0].ParameterType : null;
+
+                if (parameterType != null)
                 {
                     try
                     {
-                        object? parameter = JsonConvert.DeserializeObject(request.Content, handlerInfo.ParameterType);
-                        response = handlerInfo.Handler.Invoke(parameter);
+                        object? parameter = JsonConvert.DeserializeObject(request.Content, parameterType);
+                        response = (IApiResponse)methodInfo.Invoke(controller, new object[1] { parameter });
                     }
                     catch (JsonReaderException)
                     {
@@ -36,12 +54,8 @@ namespace Rest
                 }
                 else
                 {
-                    response = handlerInfo.Handler.Invoke(null);
+                    response = (IApiResponse)methodInfo.Invoke(controller, null);
                 }
-            }
-            else
-            {
-                response = new NotFound();
             }
 
             HttpResponse httpResponse = new HttpResponse(response);
@@ -49,6 +63,24 @@ namespace Rest
 
             writer.Flush();
             writer.Close();
+        }
+
+        private bool ValidateRequest(IApiRequest request, ref IApiResponse? response, MethodInfo? handler)
+        {
+            if (handler == null)
+            {
+                response = new NotFound();
+                return false;
+            }
+
+            RestrictAttribute? restrictAttr = handler.GetCustomAttribute<RestrictAttribute>();
+            if (restrictAttr != null && authHandler != null && (!authHandler.IsAuthorized(restrictAttr.Restriction, request.AuthToken)))
+            {
+                response = new Unauthorized();
+                return false;
+            }
+
+            return true;
         }
     }
 }
