@@ -15,7 +15,7 @@ namespace MCTG
 
             server.AddScoped<ITestService, TestService>();
 
-            server.AddAuth<AuthHandler>();
+            server.AddAuth<AuthProvider>();
             server.Start();
         }
     }

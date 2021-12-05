@@ -2,7 +2,7 @@
 
 namespace MCTG.Auth
 {
-    internal class AuthHandler : IAuthHandler
+    internal class AuthProvider : IAuthProvider
     {
         public bool IsAuthorized(object? expected, string? token)
         {

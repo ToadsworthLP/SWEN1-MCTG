@@ -12,7 +12,7 @@ namespace Rest
     {
         private readonly ControllerRegistry registry;
         private readonly StreamWriter writer;
-        private readonly IAuthHandler? authHandler;
+        private readonly IAuthProvider? authHandler;
         private readonly IKernel kernel;
 
         public RequestHandler(ControllerRegistry registry, StreamWriter writer, IKernel kernel)
@@ -23,7 +23,7 @@ namespace Rest
             this.kernel = kernel;
         }
 
-        public RequestHandler(ControllerRegistry registry, StreamWriter writer, IAuthHandler? authHandler, IKernel kernel)
+        public RequestHandler(ControllerRegistry registry, StreamWriter writer, IAuthProvider? authHandler, IKernel kernel)
         {
             this.registry = registry;
             this.writer = writer;

@@ -49,7 +49,7 @@ namespace Rest
                         }
                         else
                         {
-                            IAuthHandler? authHandler = (IAuthHandler)Activator.CreateInstance(authHandlerType);
+                            IAuthProvider? authHandler = (IAuthProvider)Activator.CreateInstance(authHandlerType);
                             requestHandler = new RequestHandler(controllers, writer, authHandler, kernel);
                         }
 
@@ -64,7 +64,7 @@ namespace Rest
             controllers.AddController<T>();
         }
 
-        public void AddAuth<T>() where T : IAuthHandler, new()
+        public void AddAuth<T>() where T : IAuthProvider, new()
         {
             authHandlerType = typeof(T);
         }
