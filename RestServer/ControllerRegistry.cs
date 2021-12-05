@@ -25,26 +25,46 @@ namespace Rest
                 foreach (MethodInfo method in candidates)
                 {
                     MethodAttribute? methodAttr = method.GetCustomAttribute<MethodAttribute>();
-                    bool hasParameter = method.GetParameters().Length > 0;
 
                     if (methodAttr == null) continue;
-
-                    if (Routes.ContainsKey(new RouteInfo(typeof(T), methodAttr.Method, hasParameter)))
-                    {
-                        throw new ArgumentException($"Multiple handlers with equal argument count found for method {methodAttr.Method} in controller {typeof(T).Name}.");
-                    }
 
                     if (!method.ReturnType.IsAssignableTo(typeof(IApiResponse)))
                     {
                         throw new ArgumentException($"Invalid return type in method {methodAttr.Method} in controller {typeof(T).Name}. Handler methods must return a type implementing IApiResponse.");
                     }
 
-                    if (method.GetParameters().Length > 1)
+                    bool hasBody = false, hasRouteParam = false;
+
+                    ParameterInfo[] parameters = method.GetParameters();
+
+                    foreach (ParameterInfo parameter in parameters)
                     {
-                        throw new ArgumentException($"Invalid parameters in method {methodAttr.Method} in controller {typeof(T).Name}. Handler methods must take at most one parameter.");
+                        ControllerMethodParameterAttribute? controllerMethodParameterAttribute = parameter.GetCustomAttribute<ControllerMethodParameterAttribute>();
+                        if (controllerMethodParameterAttribute != null)
+                        {
+                            if (controllerMethodParameterAttribute is FromBodyAttribute)
+                            {
+                                hasBody = true;
+                            }
+                            else if (controllerMethodParameterAttribute is FromRouteAttribute)
+                            {
+                                hasRouteParam = true;
+                            }
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid or missing attribute at parameter {parameter.Name} of method {methodAttr.Method} in controller {typeof(T).Name}.");
+                        }
                     }
 
-                    Routes.Add(new RouteInfo(typeof(T), methodAttr.Method, hasParameter), method);
+                    RouteInfo route = new RouteInfo(typeof(T), methodAttr.Method, hasBody, hasRouteParam);
+
+                    if (Routes.ContainsKey(route))
+                    {
+                        throw new ArgumentException($"Multiple handlers with similar signatures found for method {methodAttr.Method} in controller {typeof(T).Name}.");
+                    }
+
+                    Routes.Add(route, method);
                 }
             }
             else
@@ -53,36 +73,39 @@ namespace Rest
             }
         }
 
-        public Type? GetControllerType(IApiRequest request)
+        public HandlerInfo? GetHandler(IApiRequest request)
         {
-            Type controllerType;
+            bool hasRouteParam = false;
+
+            bool hasBody = request.Content != "";
+
+            Type? controllerType;
             if (!Controllers.TryGetValue(request.Path, out controllerType))
             {
-                return null;
-            }
+                int lastPartStartIndex = request.Path.LastIndexOf('/');
+                if (lastPartStartIndex >= 0)
+                {
+                    string pathWithoutLastPart = request.Path.Substring(0, lastPartStartIndex);
+                    if (!Controllers.TryGetValue(pathWithoutLastPart, out controllerType))
+                    {
+                        return null;
+                    }
 
-            return controllerType;
-        }
-
-        public MethodInfo? GetHandler(IApiRequest request)
-        {
-            Type controllerType;
-            if (!Controllers.TryGetValue(request.Path, out controllerType))
-            {
-                return null;
+                    hasRouteParam = true;
+                }
             }
 
             MethodInfo methodInfo;
-            if (!Routes.TryGetValue(new RouteInfo(controllerType, request.Method, request.Content != ""), out methodInfo))
+            if (!Routes.TryGetValue(new RouteInfo(controllerType, request.Method, hasBody, hasRouteParam), out methodInfo))
             {
                 return null;
             }
 
-            return methodInfo;
+            return new HandlerInfo(controllerType, methodInfo);
         }
     }
 
-    public record HandlerInfo(Func<object?, IApiResponse?> Handler, Type? ParameterType);
+    internal record RouteInfo(Type ControllerType, Method Method, bool HasBody, bool HasRouteParam);
 
-    internal record RouteInfo(Type ControllerType, Method Method, bool HasParameter);
+    public record HandlerInfo(Type ControllerType, MethodInfo Handler);
 }

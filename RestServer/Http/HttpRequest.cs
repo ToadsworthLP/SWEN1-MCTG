@@ -1,4 +1,6 @@
-﻿namespace Rest.Http
+﻿using System.Net;
+
+namespace Rest.Http
 {
     internal class HttpRequest : IApiRequest
     {
@@ -7,12 +9,13 @@
         public string Content { get; private set; }
         public string? AuthToken { get; private set; }
         public string Version { get; private set; }
-        public Dictionary<string, string> Headers { get; private set; }
-
+        public Dictionary<string, string> Headers { get; }
+        public Dictionary<string, string> Parameters { get; }
 
         public HttpRequest(StreamReader reader)
         {
             Headers = new Dictionary<string, string>();
+            Parameters = new Dictionary<string, string>();
 
             string? line;
             Section currentSection = Section.METHOD;
@@ -43,6 +46,10 @@
             }
 
             ParseContent(reader);
+
+            ParseGetParameters();
+
+            if (Path.EndsWith('/')) Path = Path.Substring(0, Path.Length - 1);
 
             if (Headers.TryGetValue("Authorization", out string authInfo))
             {
@@ -87,6 +94,37 @@
             }
 
             if (Content == null) Content = "{}";
+        }
+
+        private void ParseGetParameters()
+        {
+            int startIndex = Path.IndexOf('?');
+
+            if (startIndex >= 0)
+            {
+                string parameters = Path.Substring(startIndex + 1);
+                string[] parts = parameters.Split('&');
+
+                foreach (string part in parts)
+                {
+                    int splitIndex = part.IndexOf('=');
+
+                    if (splitIndex >= 0)
+                    {
+                        string key = WebUtility.UrlDecode(part.Substring(0, splitIndex));
+                        string value = WebUtility.UrlDecode(part.Substring(splitIndex + 1));
+
+                        Parameters.Add(key, value);
+                    }
+                    else
+                    {
+                        string key = WebUtility.UrlDecode(part);
+                        Parameters.Add(key, "");
+                    }
+                }
+
+                Path = Path.Substring(0, startIndex);
+            }
         }
 
         private enum Section

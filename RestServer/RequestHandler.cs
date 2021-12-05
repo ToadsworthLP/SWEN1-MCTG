@@ -2,6 +2,7 @@
 using Rest.Attributes;
 using Rest.Http;
 using Rest.ResponseTypes;
+using System.Net;
 using System.Reflection;
 
 namespace Rest
@@ -30,31 +31,65 @@ namespace Rest
         {
             IApiResponse? response = null;
 
-            Type? controllerType = registry.GetControllerType(request);
-            MethodInfo? methodInfo = registry.GetHandler(request);
+            HandlerInfo? handlerInfo = registry.GetHandler(request);
 
-            if (ValidateRequest(request, ref response, methodInfo))
+            if (ValidateRequest(request, ref response, handlerInfo))
             {
-                object? controller = Activator.CreateInstance(controllerType);
+                ParameterInfo[] methodParameters = handlerInfo.Handler.GetParameters();
+                object?[] parameterValues = new object[methodParameters.Length];
 
-                ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-                Type? parameterType = parameterInfos.Length > 0 ? parameterInfos[0].ParameterType : null;
-
-                if (parameterType != null)
+                try
                 {
-                    try
+                    for (int i = 0; i < methodParameters.Length; i++)
                     {
-                        object? parameter = JsonConvert.DeserializeObject(request.Content, parameterType);
-                        response = (IApiResponse)methodInfo.Invoke(controller, new object[1] { parameter });
+                        ParameterInfo parameter = methodParameters[i];
+
+                        ControllerMethodParameterAttribute? attribute = parameter.GetCustomAttribute<ControllerMethodParameterAttribute>();
+                        if (attribute != null)
+                        {
+                            if (attribute is FromBodyAttribute)
+                            {
+                                parameterValues[i] = JsonConvert.DeserializeObject(request.Content, parameter.ParameterType);
+                            }
+                            else if (attribute is FromRouteAttribute)
+                            {
+                                int lastPartStartIndex = request.Path.LastIndexOf('/');
+                                if (lastPartStartIndex >= 0)
+                                {
+                                    parameterValues[i] = WebUtility.UrlDecode(request.Path.Substring(lastPartStartIndex + 1));
+                                }
+                            }
+                            else if (attribute is FromParameterAttribute)
+                            {
+                                FromParameterAttribute fromParameterAttribute = (FromParameterAttribute)attribute;
+                                string value;
+                                if (request.Parameters.TryGetValue(fromParameterAttribute.Parameter, out value))
+                                {
+                                    parameterValues[i] = value;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            parameterValues[i] = null;
+                        }
                     }
-                    catch (JsonReaderException)
+
+                    object? controller = Activator.CreateInstance(handlerInfo.ControllerType);
+
+                    bool hasParameters = parameterValues.Where(x => x != null).Any();
+                    if (hasParameters)
                     {
-                        response = new BadRequest();
+                        response = (IApiResponse?)handlerInfo.Handler.Invoke(controller, parameterValues);
+                    }
+                    else
+                    {
+                        response = (IApiResponse?)handlerInfo.Handler.Invoke(controller, null);
                     }
                 }
-                else
+                catch (Exception)
                 {
-                    response = (IApiResponse)methodInfo.Invoke(controller, null);
+                    response = new BadRequest();
                 }
             }
 
@@ -62,18 +97,17 @@ namespace Rest
             httpResponse.Send(writer);
 
             writer.Flush();
-            writer.Close();
         }
 
-        private bool ValidateRequest(IApiRequest request, ref IApiResponse? response, MethodInfo? handler)
+        private bool ValidateRequest(IApiRequest request, ref IApiResponse? response, HandlerInfo? handlerInfo)
         {
-            if (handler == null)
+            if (handlerInfo == null)
             {
                 response = new NotFound();
                 return false;
             }
 
-            RestrictAttribute? restrictAttr = handler.GetCustomAttribute<RestrictAttribute>();
+            RestrictAttribute? restrictAttr = handlerInfo.Handler.GetCustomAttribute<RestrictAttribute>();
             if (restrictAttr != null && authHandler != null && (!authHandler.IsAuthorized(restrictAttr.Restriction, request.AuthToken)))
             {
                 response = new Unauthorized();
