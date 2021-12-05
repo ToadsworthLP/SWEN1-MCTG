@@ -14,7 +14,7 @@ namespace Rest
             Routes = new Dictionary<RouteInfo, MethodInfo>();
         }
 
-        public void AddController<T>() where T : new()
+        public void AddController<T>()
         {
             Attribute? routeAttribute = Attribute.GetCustomAttribute(typeof(T), typeof(RouteAttribute));
             if (routeAttribute != null)

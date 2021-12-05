@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Ninject;
 using Rest.Attributes;
 using Rest.Http;
 using Rest.ResponseTypes;
@@ -12,19 +13,22 @@ namespace Rest
         private readonly ControllerRegistry registry;
         private readonly StreamWriter writer;
         private readonly IAuthHandler? authHandler;
+        private readonly IKernel kernel;
 
-        public RequestHandler(ControllerRegistry registry, StreamWriter writer)
+        public RequestHandler(ControllerRegistry registry, StreamWriter writer, IKernel kernel)
         {
             this.registry = registry;
             this.writer = writer;
             this.authHandler = null;
+            this.kernel = kernel;
         }
 
-        public RequestHandler(ControllerRegistry registry, StreamWriter writer, IAuthHandler? authHandler)
+        public RequestHandler(ControllerRegistry registry, StreamWriter writer, IAuthHandler? authHandler, IKernel kernel)
         {
             this.registry = registry;
             this.writer = writer;
             this.authHandler = authHandler;
+            this.kernel = kernel;
         }
 
         public void Handle(IApiRequest request)
@@ -75,7 +79,7 @@ namespace Rest
                         }
                     }
 
-                    object? controller = Activator.CreateInstance(handlerInfo.ControllerType);
+                    object? controller = kernel.Get(handlerInfo.ControllerType);
 
                     bool hasParameters = parameterValues.Where(x => x != null).Any();
                     if (hasParameters)
@@ -87,7 +91,7 @@ namespace Rest
                         response = (IApiResponse?)handlerInfo.Handler.Invoke(controller, null);
                     }
                 }
-                catch (Exception)
+                catch (JsonException)
                 {
                     response = new BadRequest();
                 }

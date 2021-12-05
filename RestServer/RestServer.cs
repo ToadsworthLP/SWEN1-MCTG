@@ -1,4 +1,6 @@
-﻿using Rest.Http;
+﻿using Ninject;
+using Ninject.Extensions.NamedScope;
+using Rest.Http;
 using System.Net;
 using System.Net.Sockets;
 
@@ -13,12 +15,15 @@ namespace Rest
 
         private Type authHandlerType;
 
+        private IKernel kernel;
+
         public RestServer(IPAddress adress, int port)
         {
             this.address = adress;
             this.port = port;
 
             controllers = new ControllerRegistry();
+            kernel = new StandardKernel();
         }
 
         public void Start()
@@ -40,12 +45,12 @@ namespace Rest
 
                         if (authHandlerType == null)
                         {
-                            requestHandler = new RequestHandler(controllers, writer);
+                            requestHandler = new RequestHandler(controllers, writer, kernel);
                         }
                         else
                         {
                             IAuthHandler? authHandler = (IAuthHandler)Activator.CreateInstance(authHandlerType);
-                            requestHandler = new RequestHandler(controllers, writer, authHandler);
+                            requestHandler = new RequestHandler(controllers, writer, authHandler, kernel);
                         }
 
                         requestHandler.Handle(request);
@@ -54,7 +59,7 @@ namespace Rest
             }
         }
 
-        public void AddController<T>() where T : new()
+        public void AddController<T>()
         {
             controllers.AddController<T>();
         }
@@ -62,6 +67,21 @@ namespace Rest
         public void AddAuth<T>() where T : IAuthHandler, new()
         {
             authHandlerType = typeof(T);
+        }
+
+        public void AddSingleton<TInterface, TImplementation>() where TImplementation : TInterface
+        {
+            kernel.Bind<TInterface>().To<TImplementation>().InSingletonScope();
+        }
+
+        public void AddScoped<TInterface, TImplementation>() where TImplementation : TInterface
+        {
+            kernel.Bind<TInterface>().To<TImplementation>().InCallScope();
+        }
+
+        public void AddTransient<TInterface, TImplementation>() where TImplementation : TInterface
+        {
+            kernel.Bind<TInterface>().To<TImplementation>().InTransientScope();
         }
     }
 }
