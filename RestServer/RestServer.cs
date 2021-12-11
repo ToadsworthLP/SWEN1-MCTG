@@ -40,7 +40,15 @@ namespace Rest
                     using (StreamWriter writer = new StreamWriter(client.GetStream()) { AutoFlush = true })
                     {
                         IApiRequest request;
-                        request = new HttpRequest(reader);
+                        try
+                        {
+                            request = new HttpRequest(reader);
+                        }
+                        catch
+                        {
+                            return; // Ignore requests that don't follow the HTTP standard
+                        }
+
                         RequestHandler requestHandler;
 
                         if (authHandlerType == null)

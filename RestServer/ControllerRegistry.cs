@@ -14,14 +14,14 @@ namespace Rest
             Routes = new Dictionary<RouteInfo, MethodInfo>();
         }
 
-        public void AddController<T>()
+        public void AddController(Type type)
         {
-            Attribute? routeAttribute = Attribute.GetCustomAttribute(typeof(T), typeof(RouteAttribute));
+            Attribute? routeAttribute = Attribute.GetCustomAttribute(type, typeof(RouteAttribute));
             if (routeAttribute != null)
             {
-                Controllers.Add(((RouteAttribute)routeAttribute).Route, typeof(T));
+                Controllers.Add(((RouteAttribute)routeAttribute).Route, type);
 
-                MethodInfo[] candidates = typeof(T).GetMethods();
+                MethodInfo[] candidates = type.GetMethods();
                 foreach (MethodInfo method in candidates)
                 {
                     MethodAttribute? methodAttr = method.GetCustomAttribute<MethodAttribute>();
@@ -30,7 +30,7 @@ namespace Rest
 
                     if (!method.ReturnType.IsAssignableTo(typeof(IApiResponse)))
                     {
-                        throw new ArgumentException($"Invalid return type in method {methodAttr.Method} in controller {typeof(T).Name}. Handler methods must return a type implementing IApiResponse.");
+                        throw new ArgumentException($"Invalid return type in method {methodAttr.Method} in controller {type.Name}. Handler methods must return a type implementing IApiResponse.");
                     }
 
                     bool hasBody = false, hasRouteParam = false;
@@ -44,24 +44,34 @@ namespace Rest
                         {
                             if (controllerMethodParameterAttribute is FromBodyAttribute)
                             {
+                                if (hasBody)
+                                {
+                                    throw new ArgumentException($"Duplicate FromBody parameter attribute at parameter {parameter.Name} of method {methodAttr.Method} in controller {type.Name}.");
+                                }
+
                                 hasBody = true;
                             }
                             else if (controllerMethodParameterAttribute is FromRouteAttribute)
                             {
+                                if (hasRouteParam)
+                                {
+                                    throw new ArgumentException($"Duplicate FromRoute parameter attribute at parameter {parameter.Name} of method {methodAttr.Method} in controller {type.Name}.");
+                                }
+
                                 hasRouteParam = true;
                             }
                         }
                         else
                         {
-                            throw new ArgumentException($"Invalid or missing attribute at parameter {parameter.Name} of method {methodAttr.Method} in controller {typeof(T).Name}.");
+                            throw new ArgumentException($"Invalid or missing attribute at parameter {parameter.Name} of method {methodAttr.Method} in controller {type.Name}.");
                         }
                     }
 
-                    RouteInfo route = new RouteInfo(typeof(T), methodAttr.Method, hasBody, hasRouteParam);
+                    RouteInfo route = new RouteInfo(type, methodAttr.Method, hasBody, hasRouteParam);
 
                     if (Routes.ContainsKey(route))
                     {
-                        throw new ArgumentException($"Multiple handlers with similar signatures found for method {methodAttr.Method} in controller {typeof(T).Name}.");
+                        throw new ArgumentException($"Multiple handlers with similar signatures found for method {methodAttr.Method} in controller {type.Name}.");
                     }
 
                     Routes.Add(route, method);
@@ -69,8 +79,13 @@ namespace Rest
             }
             else
             {
-                throw new ArgumentException($"Passed controller type {typeof(T).Name} does not have a Route attribute.");
+                throw new ArgumentException($"Passed controller type {type.Name} does not have a Route attribute.");
             }
+        }
+
+        public void AddController<T>()
+        {
+            AddController(typeof(T));
         }
 
         public HandlerInfo? GetHandler(IApiRequest request)

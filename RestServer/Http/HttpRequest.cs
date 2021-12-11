@@ -2,7 +2,7 @@
 
 namespace Rest.Http
 {
-    internal class HttpRequest : IApiRequest
+    public class HttpRequest : IApiRequest
     {
         public Method Method { get; private set; }
         public string Path { get; private set; }
@@ -14,51 +14,58 @@ namespace Rest.Http
 
         public HttpRequest(StreamReader reader)
         {
-            Headers = new Dictionary<string, string>();
-            Parameters = new Dictionary<string, string>();
-
-            string? line;
-            Section currentSection = Section.METHOD;
-
-            while (currentSection != Section.CONTENT)
+            try
             {
-                line = reader.ReadLine();
-                if (line == null) break;
+                Headers = new Dictionary<string, string>();
+                Parameters = new Dictionary<string, string>();
 
-                switch (currentSection)
+                string? line;
+                Section currentSection = Section.METHOD;
+
+                while (currentSection != Section.CONTENT)
                 {
-                    case Section.METHOD:
-                        ParseMethod(line);
-                        currentSection = Section.HEADER;
-                        break;
+                    line = reader.ReadLine();
+                    if (line == null) break;
 
-                    case Section.HEADER:
-                        if (line.Length == 0)
-                        {
-                            currentSection = Section.CONTENT;
-                        }
-                        else
-                        {
-                            ParseHeader(line);
-                        }
-                        break;
+                    switch (currentSection)
+                    {
+                        case Section.METHOD:
+                            ParseMethod(line);
+                            currentSection = Section.HEADER;
+                            break;
+
+                        case Section.HEADER:
+                            if (line.Length == 0)
+                            {
+                                currentSection = Section.CONTENT;
+                            }
+                            else
+                            {
+                                ParseHeader(line);
+                            }
+                            break;
+                    }
+                }
+
+                ParseContent(reader);
+
+                ParseGetParameters();
+
+                if (Path.EndsWith('/')) Path = Path.Substring(0, Path.Length - 1);
+
+                if (Headers.TryGetValue("Authorization", out string authInfo))
+                {
+                    int splitIndex = Headers["Authorization"].IndexOf(' ');
+                    AuthToken = authInfo.Substring(splitIndex + 1);
+                }
+                else
+                {
+                    AuthToken = null;
                 }
             }
-
-            ParseContent(reader);
-
-            ParseGetParameters();
-
-            if (Path.EndsWith('/')) Path = Path.Substring(0, Path.Length - 1);
-
-            if (Headers.TryGetValue("Authorization", out string authInfo))
+            catch
             {
-                int splitIndex = Headers["Authorization"].IndexOf(' ');
-                AuthToken = authInfo.Substring(splitIndex + 1);
-            }
-            else
-            {
-                AuthToken = null;
+                throw new ArgumentException("Failed to parse HTTP request due to incorrect formatting");
             }
         }
 
@@ -93,7 +100,7 @@ namespace Rest.Http
                 Content = new string(buffer);
             }
 
-            if (Content == null) Content = "{}";
+            if (Content == null) Content = "";
         }
 
         private void ParseGetParameters()

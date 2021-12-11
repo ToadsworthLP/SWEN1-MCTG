@@ -2,7 +2,7 @@
 
 namespace Rest.Http
 {
-    internal class HttpResponse
+    public class HttpResponse
     {
         private const string SERVER = "HTTP REST Server";
         private readonly string httpResponse;
@@ -12,11 +12,11 @@ namespace Rest.Http
             string responseJson = JsonConvert.SerializeObject(response.Content);
             if (responseJson == "null")
             {
-                httpResponse = $"HTTP/1.1 {response.Status}\nServer: {SERVER}\nCurrent Time: {DateTime.Now}\nContent-Length: {0}\nContent-Type: application/json; charset=utf-8";
+                httpResponse = $"HTTP/1.1 {response.Status}\nServer: {SERVER}\nContent-Length: {0}\nContent-Type: application/json; charset=utf-8\n\n";
             }
             else
             {
-                httpResponse = $"HTTP/1.1 {response.Status}\nServer: {SERVER}\nCurrent Time: {DateTime.Now}\nContent-Length: {responseJson.Length}\nContent-Type: application/json; charset=utf-8\n\n{responseJson}";
+                httpResponse = $"HTTP/1.1 {response.Status}\nServer: {SERVER}\nContent-Length: {responseJson.Length}\nContent-Type: application/json; charset=utf-8\n\n{responseJson}";
             }
 
         }
