@@ -82,14 +82,29 @@ namespace Rest
             kernel.Bind<TInterface>().To<TImplementation>().InSingletonScope();
         }
 
+        public void AddSingleton<TImplementation>()
+        {
+            kernel.Bind<TImplementation>().ToSelf().InSingletonScope();
+        }
+
         public void AddScoped<TInterface, TImplementation>() where TImplementation : TInterface
         {
             kernel.Bind<TInterface>().To<TImplementation>().InCallScope();
         }
 
+        public void AddScoped<TImplementation>()
+        {
+            kernel.Bind<TImplementation>().ToSelf().InCallScope();
+        }
+
         public void AddTransient<TInterface, TImplementation>() where TImplementation : TInterface
         {
             kernel.Bind<TInterface>().To<TImplementation>().InTransientScope();
+        }
+
+        public void AddTransient<TImplementation>()
+        {
+            kernel.Bind<TImplementation>().ToSelf().InTransientScope();
         }
     }
 }
