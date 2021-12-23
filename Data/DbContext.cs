@@ -4,6 +4,8 @@ namespace Data
 {
     public class DbContext
     {
+        private static object transactionLock = new object();
+
         private IList<DbSet> dbSets = new List<DbSet>();
         public NpgsqlConnection DbConnection { get; init; }
 
@@ -26,9 +28,16 @@ namespace Data
 
         public void Commit()
         {
-            foreach (DbSet dbSet in dbSets)
+            lock (transactionLock)
             {
-                dbSet.Commit();
+                NpgsqlTransaction transaction = DbConnection.BeginTransaction();
+
+                foreach (DbSet dbSet in dbSets)
+                {
+                    dbSet.Commit();
+                }
+
+                transaction.Commit();
             }
         }
 

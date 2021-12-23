@@ -35,7 +35,7 @@ namespace Data
             return results;
         }
 
-        public static IEnumerable<string> ObjectToCommandParameters<T>(NpgsqlCommand command, T record) where T : DbRecord
+        public static IEnumerable<string> ObjectToColumnNames<T>()
         {
             List<string> columnNames = new List<string>();
 
@@ -43,10 +43,18 @@ namespace Data
             for (int i = 0; i < properties.Length; i++)
             {
                 columnNames.Add(properties[i].Name.ToLower());
-                command.Parameters.AddWithValue(i.ToString(), properties[i].GetValue(record));
             }
 
             return columnNames;
+        }
+
+        public static void ObjectToCommandParameters<T>(NpgsqlCommand command, T record, int startIndex = 0) where T : DbRecord
+        {
+            PropertyInfo[] properties = typeof(T).GetProperties();
+            for (int i = startIndex; i < properties.Length + startIndex; i++)
+            {
+                command.Parameters.AddWithValue(i.ToString(), properties[i - startIndex].GetValue(record));
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ namespace MCTG.Controllers
         [Method(Method.POST)]
         public IApiResponse Create()
         {
-            TestModel testModel = db.TestModels.Create(new TestModel("Test3", 0));
+            TestModel testModel = db.TestModels.Create(new TestModel("Test", 0));
             db.Commit();
 
             return new Ok(testModel);
@@ -28,11 +28,34 @@ namespace MCTG.Controllers
         [Method(Method.POST)]
         public IApiResponse Increment([FromRoute] string id)
         {
-            TestModel testModel = db.TestModels.Get(new Guid(id));
-            db.TestModels.Update(testModel with { Count = testModel.Count + 1 });
-            db.Commit();
+            TestModel? testModel = db.TestModels.Get(new Guid(id));
+            if (testModel != null)
+            {
+                TestModel updated = testModel with { Count = testModel.Count + 1 };
+                db.TestModels.Update(updated);
+                db.Commit();
+                return new Ok(updated);
+            }
+            else
+            {
+                return new NotFound();
+            }
+        }
 
-            return new Ok(testModel);
+        [Method(Method.DELETE)]
+        public IApiResponse Delete([FromRoute] string id)
+        {
+            TestModel? testModel = db.TestModels.Get(new Guid(id));
+            if (testModel != null)
+            {
+                db.TestModels.Delete(testModel);
+                db.Commit();
+                return new Ok();
+            }
+            else
+            {
+                return new NotFound();
+            }
         }
     }
 }

@@ -48,7 +48,6 @@ namespace Data
         {
             T newRecord = record with { Id = Guid.NewGuid() };
             toCreate.Add(newRecord);
-            cachedRecords[record.Id] = record;
 
             return newRecord;
         }
@@ -56,7 +55,6 @@ namespace Data
         public void Update(T record)
         {
             toUpdate.Add(record);
-            cachedRecords[record.Id] = record;
         }
 
         public void Delete(T record)
@@ -70,11 +68,25 @@ namespace Data
             {
                 new InsertCommand<T>().Into(this).Values(record).Run(dbContext);
             }
+
+            foreach (T record in toUpdate)
+            {
+                new UpdateCommand<T>().Into(this).Set(record).WhereEquals(nameof(record.Id), record.Id).Run(dbContext);
+            }
+
+            foreach (T record in toDelete)
+            {
+                new DeleteCommand().From(this).WhereEquals(nameof(record.Id), record.Id).Run(dbContext);
+            }
+
+            cachedRecords.Clear();
         }
 
         internal override void Rollback()
         {
-
+            toCreate.Clear();
+            toUpdate.Clear();
+            toDelete.Clear();
         }
     }
 }

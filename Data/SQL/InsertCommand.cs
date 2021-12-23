@@ -32,7 +32,7 @@ namespace Data.SQL
 
             if (value == null) throw new InvalidOperationException("No object to insert was set.");
 
-            IEnumerable<string> columnNames = DbRecordConverter.ObjectToCommandParameters(command, value);
+            IEnumerable<string> columnNames = DbRecordConverter.ObjectToColumnNames<T>();
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.Append($"INSERT INTO {table} ({string.Join(',', columnNames)}) VALUES (");
@@ -43,12 +43,14 @@ namespace Data.SQL
             }
             stringBuilder.Append(')');
 
-            command.CommandText = stringBuilder.ToString();
+            int affected;
+            using (NpgsqlCommand command = new NpgsqlCommand(stringBuilder.ToString(), context.DbConnection))
+            {
+                DbRecordConverter.ObjectToCommandParameters(command, value);
+                affected = command.ExecuteNonQuery();
+            }
 
-            command.Connection = context.DbConnection;
-            command.Prepare();
-
-            return command.ExecuteNonQuery();
+            return affected;
         }
     }
 }

@@ -2,25 +2,25 @@
 
 namespace Data.SQL
 {
-    internal class SelectCommand<T> where T : DbRecord, new()
+    internal class DeleteCommand
     {
         private string table;
         private List<(string, object)> parameters;
         private List<string> filters;
 
-        public SelectCommand()
+        public DeleteCommand()
         {
             parameters = new List<(string, object)>();
             filters = new List<string>();
         }
 
-        public SelectCommand<T> From(DbSet dbSet)
+        public DeleteCommand From(DbSet dbSet)
         {
             table = dbSet.TableName;
             return this;
         }
 
-        public SelectCommand<T> WhereEquals<TFilter>(string column, TFilter value)
+        public DeleteCommand WhereEquals<TFilter>(string column, TFilter value)
         {
             string index = parameters.Count.ToString();
 
@@ -30,34 +30,27 @@ namespace Data.SQL
             return this;
         }
 
-        public SelectCommand<T> AndWhereEquals<TFilter>(string column, TFilter value)
+        public DeleteCommand AndWhereEquals<TFilter>(string column, TFilter value)
         {
             filters.Add($"AND");
             return WhereEquals(column, value);
         }
 
-        public SelectCommand<T> OrWhereEquals<TFilter>(string column, TFilter value)
+        public DeleteCommand OrWhereEquals<TFilter>(string column, TFilter value)
         {
             filters.Add($"OR");
             return WhereEquals(column, value);
         }
 
-        public IEnumerable<T> Run(DbContext context)
+        public int Run(DbContext context)
         {
             if (table == null) throw new InvalidOperationException("No table to execute the command on was set.");
 
-            string commandText;
+            if (filters.Count == 0) throw new InvalidOperationException("No Where() condition was set.");
 
-            if (filters.Count > 0)
-            {
-                commandText = $"SELECT * FROM {table} WHERE {string.Join(' ', filters)}";
-            }
-            else
-            {
-                commandText = $"SELECT * FROM {table}";
-            }
+            string commandText = $"DELETE FROM {table} WHERE {string.Join(' ', filters)}";
 
-            IEnumerable<T> results;
+            int affected;
             using (NpgsqlCommand command = new NpgsqlCommand(commandText, context.DbConnection))
             {
                 foreach (var entry in parameters)
@@ -65,13 +58,10 @@ namespace Data.SQL
                     command.Parameters.AddWithValue(entry.Item1, entry.Item2);
                 }
 
-                using (NpgsqlDataReader reader = command.ExecuteReader())
-                {
-                    results = DbRecordConverter.ReaderToObjects<T>(reader);
-                }
+                affected = command.ExecuteNonQuery();
             }
 
-            return results;
+            return affected;
         }
     }
 }
