@@ -28,13 +28,16 @@ namespace Data
         {
             foreach (DbSet dbSet in dbSets)
             {
-
+                dbSet.Commit();
             }
         }
 
         public void Rollback()
         {
-
+            foreach (DbSet dbSet in dbSets)
+            {
+                dbSet.Rollback();
+            }
         }
     }
 }

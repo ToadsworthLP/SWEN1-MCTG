@@ -19,7 +19,8 @@ namespace MCTG.Controllers
         [Method(Method.POST)]
         public IApiResponse Create()
         {
-            TestModel testModel = db.TestModels.Create(new TestModel("Test", 0));
+            TestModel testModel = db.TestModels.Create(new TestModel("Test3", 0));
+            db.Commit();
 
             return new Ok(testModel);
         }

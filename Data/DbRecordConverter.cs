@@ -5,7 +5,7 @@ namespace Data
 {
     internal class DbRecordConverter
     {
-        public static IEnumerable<T> To<T>(NpgsqlDataReader reader) where T : DbRecord, new()
+        public static IEnumerable<T> ReaderToObjects<T>(NpgsqlDataReader reader) where T : DbRecord, new()
         {
             List<T> results = new List<T>();
 
@@ -33,6 +33,20 @@ namespace Data
             }
 
             return results;
+        }
+
+        public static IEnumerable<string> ObjectToCommandParameters<T>(NpgsqlCommand command, T record) where T : DbRecord
+        {
+            List<string> columnNames = new List<string>();
+
+            PropertyInfo[] properties = typeof(T).GetProperties();
+            for (int i = 0; i < properties.Length; i++)
+            {
+                columnNames.Add(properties[i].Name.ToLower());
+                command.Parameters.AddWithValue(i.ToString(), properties[i].GetValue(record));
+            }
+
+            return columnNames;
         }
     }
 }

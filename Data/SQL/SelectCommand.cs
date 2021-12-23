@@ -2,10 +2,10 @@
 
 namespace Data.SQL
 {
-    internal class SelectCommand
+    internal class SelectCommand<T> where T : DbRecord, new()
     {
         private NpgsqlCommand command;
-        private string fromTable;
+        private string table;
         private List<string> filters;
 
         public SelectCommand()
@@ -14,13 +14,13 @@ namespace Data.SQL
             filters = new List<string>();
         }
 
-        public SelectCommand From(DbSet dbSet)
+        public SelectCommand<T> From(DbSet dbSet)
         {
-            fromTable = dbSet.TableName;
+            table = dbSet.TableName;
             return this;
         }
 
-        public SelectCommand WhereEquals<T>(string column, T value)
+        public SelectCommand<T> WhereEquals<TFilter>(string column, TFilter value)
         {
             string index = command.Parameters.Count.ToString();
 
@@ -30,36 +30,35 @@ namespace Data.SQL
             return this;
         }
 
-        public SelectCommand AndWhereEquals<T>(string column, T value)
+        public SelectCommand<T> AndWhereEquals<TFilter>(string column, TFilter value)
         {
             filters.Add($"AND");
             return WhereEquals(column, value);
         }
 
-        public SelectCommand OrWhereEquals<T>(string column, T value)
+        public SelectCommand<T> OrWhereEquals<TFilter>(string column, TFilter value)
         {
             filters.Add($"OR");
             return WhereEquals(column, value);
         }
 
-        public IEnumerable<T> Run<T>(DbContext context) where T : DbRecord, new()
+        public IEnumerable<T> Run(DbContext context)
         {
-            if (fromTable == null) throw new InvalidOperationException("No table to execute the command on was set");
+            if (table == null) throw new InvalidOperationException("No table to execute the command on was set.");
 
             if (filters.Count > 0)
             {
-                command.CommandText = $"SELECT * FROM {fromTable} WHERE {string.Join(' ', filters)}";
+                command.CommandText = $"SELECT * FROM {table} WHERE {string.Join(' ', filters)}";
             }
             else
             {
-                command.CommandText = $"SELECT * FROM {fromTable}";
+                command.CommandText = $"SELECT * FROM {table}";
             }
 
             command.Connection = context.DbConnection;
             command.Prepare();
-
             NpgsqlDataReader reader = command.ExecuteReader();
-            IEnumerable<T> results = DbRecordConverter.To<T>(reader);
+            IEnumerable<T> results = DbRecordConverter.ReaderToObjects<T>(reader);
 
             return results;
         }

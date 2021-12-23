@@ -6,36 +6,38 @@ namespace Data
     {
         public string TableName { get; init; }
 
-        protected Dictionary<Guid, DbRecord> cachedRecords = new Dictionary<Guid, DbRecord>();
         protected DbContext dbContext;
-
-        internal IList<DbRecord> toCreate = new List<DbRecord>();
-        internal IList<DbRecord> toUpdate = new List<DbRecord>();
-        internal IList<DbRecord> toDelete = new List<DbRecord>();
 
         public DbSet(string tableName, DbContext dbContext)
         {
             TableName = tableName;
             this.dbContext = dbContext;
         }
+
+        internal virtual void Commit() { }
+
+        internal virtual void Rollback() { }
     }
 
     public class DbSet<T> : DbSet where T : DbRecord, new()
     {
-        public DbSet(string tableName, DbContext dbContext) : base(tableName, dbContext)
-        {
-        }
+        private Dictionary<Guid, T> cachedRecords = new Dictionary<Guid, T>();
+        private IList<T> toCreate = new List<T>();
+        private IList<T> toUpdate = new List<T>();
+        private IList<T> toDelete = new List<T>();
+
+        public DbSet(string tableName, DbContext dbContext) : base(tableName, dbContext) { }
 
         public T? Get(Guid id)
         {
             T? result;
             if (cachedRecords.ContainsKey(id))
             {
-                return (T)cachedRecords[id];
+                return cachedRecords[id];
             }
             else
             {
-                result = new SelectCommand().From(this).WhereEquals(nameof(result.Id), id).Run<T>(dbContext).FirstOrDefault();
+                result = new SelectCommand<T>().From(this).WhereEquals(nameof(result.Id), id).Run(dbContext).FirstOrDefault();
                 if (result != null) cachedRecords.Add(id, result);
             }
 
@@ -60,6 +62,19 @@ namespace Data
         public void Delete(T record)
         {
             toDelete.Add(record);
+        }
+
+        internal override void Commit()
+        {
+            foreach (T record in toCreate)
+            {
+                new InsertCommand<T>().Into(this).Values(record).Run(dbContext);
+            }
+        }
+
+        internal override void Rollback()
+        {
+
         }
     }
 }
