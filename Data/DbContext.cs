@@ -11,22 +11,11 @@ namespace Data
         {
             DbConnection = new NpgsqlConnection(connectionString);
             DbConnection.Open();
+        }
 
-            // TODO remove this testing stuff
-            //NpgsqlCommand command = new NpgsqlCommand("SELECT * FROM @table");
-            //command.Parameters.AddWithValue("@table", "test");
-            //command.Prepare();
-
-            //NpgsqlDataReader reader = ExecuteReader(command);
-            //while (reader.Read())
-            //{
-            //    for (int i = 0; i < reader.FieldCount; i++)
-            //    {
-            //        Console.WriteLine($"{reader.GetName(i)}: {reader.GetValue(i)}");
-            //    }
-            //}
-
-            //DbConnection.Close();
+        ~DbContext()
+        {
+            DbConnection.Close();
         }
 
         public void Bind<T>(string tableName, out DbSet<T> dbSet) where T : DbRecord, new()

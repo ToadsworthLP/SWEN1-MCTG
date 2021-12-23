@@ -1,4 +1,6 @@
-﻿namespace Data
+﻿using Data.SQL;
+
+namespace Data
 {
     public class DbSet
     {
@@ -24,21 +26,17 @@
         {
         }
 
-        public T Get(Guid id)
+        public T? Get(Guid id)
         {
-            T result;
+            T? result;
             if (cachedRecords.ContainsKey(id))
             {
                 return (T)cachedRecords[id];
             }
             else
             {
-                result = new T();
-
-                //dbContext.ExecuteReader(new NpgsqlCommand("SELECT * FROM @tableName WHERE id = @id").Prepare());
-
-
-                cachedRecords.Add(id, result);
+                result = new SelectCommand().From(this).WhereEquals(nameof(result.Id), id).Run<T>(dbContext).FirstOrDefault();
+                if (result != null) cachedRecords.Add(id, result);
             }
 
             return result;
