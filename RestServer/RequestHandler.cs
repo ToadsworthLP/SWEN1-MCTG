@@ -95,6 +95,10 @@ namespace Rest
                 {
                     response = new BadRequest();
                 }
+                catch
+                {
+                    response = new InternalServerError();
+                }
             }
 
             HttpResponse httpResponse = new HttpResponse(response);

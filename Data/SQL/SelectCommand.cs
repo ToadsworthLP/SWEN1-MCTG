@@ -2,11 +2,12 @@
 
 namespace Data.SQL
 {
-    internal class SelectCommand<T> where T : DbRecord, new()
+    public class SelectCommand<T> where T : DbRecord, new()
     {
         private string table;
         private List<(string, object)> parameters;
         private List<string> filters;
+        private string orderBy = "";
 
         public SelectCommand()
         {
@@ -42,6 +43,18 @@ namespace Data.SQL
             return WhereEquals(column, value);
         }
 
+        public SelectCommand<T> OrderByAscending(string column)
+        {
+            orderBy = $" ORDER BY {column} ASC";
+            return this;
+        }
+
+        public SelectCommand<T> OrderByDescending(string column)
+        {
+            orderBy = $" ORDER BY {column} DESC";
+            return this;
+        }
+
         public IEnumerable<T> Run(DbContext context)
         {
             if (table == null) throw new InvalidOperationException("No table to execute the command on was set.");
@@ -50,11 +63,11 @@ namespace Data.SQL
 
             if (filters.Count > 0)
             {
-                commandText = $"SELECT * FROM {table} WHERE {string.Join(' ', filters)}";
+                commandText = $"SELECT * FROM {table} WHERE {string.Join(' ', filters)} {orderBy}";
             }
             else
             {
-                commandText = $"SELECT * FROM {table}";
+                commandText = $"SELECT * FROM {table} {orderBy}";
             }
 
             IEnumerable<T> results;

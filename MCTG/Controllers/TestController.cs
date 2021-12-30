@@ -1,4 +1,5 @@
-﻿using MCTG.Config;
+﻿using Data.SQL;
+using MCTG.Config;
 using MCTG.Models;
 using Rest;
 using Rest.Attributes;
@@ -14,6 +15,12 @@ namespace MCTG.Controllers
         public TestController(AppDbContext db)
         {
             this.db = db;
+        }
+
+        [Method(Method.GET)]
+        public IApiResponse Get()
+        {
+            return new Ok(new SelectCommand<TestModel>().From(db.TestModels).OrderByAscending("count").Run(db));
         }
 
         [Method(Method.POST)]

@@ -12,10 +12,12 @@ namespace MCTG.Controllers
     internal class EchoController
     {
         private readonly ITestService service;
+        private readonly AuthProvider authProvider;
 
-        public EchoController(ITestService service, ITestService service2)
+        public EchoController(ITestService service, ITestService service2, AuthProvider authProvider)
         {
             this.service = service;
+            this.authProvider = authProvider;
         }
 
         [Method(Method.GET)]
@@ -37,13 +39,10 @@ namespace MCTG.Controllers
         }
 
         [Method(Method.GET)]
-        [Restrict(Role.ADMIN)]
+        [Restrict(Role.USER)]
         public IApiResponse Test()
         {
-            EchoResponse response = new EchoResponse();
-            response.Content = "Hello, Admin!";
-
-            return new Ok(response);
+            return new Ok(authProvider.currentRole);
         }
     }
 }

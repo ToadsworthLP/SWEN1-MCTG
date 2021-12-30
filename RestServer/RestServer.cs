@@ -12,10 +12,9 @@ namespace Rest
         private int port;
 
         private ControllerRegistry controllers;
-
-        private Type authHandlerType;
-
         private IKernel kernel;
+
+        private bool useAuth;
 
         public RestServer(IPAddress adress, int port)
         {
@@ -51,14 +50,14 @@ namespace Rest
 
                         RequestHandler requestHandler;
 
-                        if (authHandlerType == null)
+                        if (useAuth)
                         {
-                            requestHandler = new RequestHandler(controllers, writer, kernel);
+                            IAuthProvider? authHandler = kernel.Get<IAuthProvider>();
+                            requestHandler = new RequestHandler(controllers, writer, authHandler, kernel);
                         }
                         else
                         {
-                            IAuthProvider? authHandler = (IAuthProvider)Activator.CreateInstance(authHandlerType);
-                            requestHandler = new RequestHandler(controllers, writer, authHandler, kernel);
+                            requestHandler = new RequestHandler(controllers, writer, kernel);
                         }
 
                         requestHandler.Handle(request);
@@ -74,7 +73,8 @@ namespace Rest
 
         public void AddAuth<T>() where T : IAuthProvider, new()
         {
-            authHandlerType = typeof(T);
+            useAuth = true;
+            AddScoped<IAuthProvider, T>();
         }
 
         public void AddSingleton<TInterface, TImplementation>() where TImplementation : TInterface
