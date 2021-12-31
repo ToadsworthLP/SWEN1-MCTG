@@ -63,11 +63,11 @@ namespace Data.SQL
 
             if (filters.Count > 0)
             {
-                commandText = $"SELECT * FROM {table} WHERE {string.Join(' ', filters)} {orderBy}";
+                commandText = $"SELECT * FROM \"{table}\" WHERE {string.Join(' ', filters)} {orderBy}";
             }
             else
             {
-                commandText = $"SELECT * FROM {table} {orderBy}";
+                commandText = $"SELECT * FROM \"{table}\" {orderBy}";
             }
 
             IEnumerable<T> results;

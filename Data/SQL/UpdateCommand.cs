@@ -61,7 +61,7 @@ namespace Data.SQL
             string[] columnNames = DbRecordConverter.ObjectToColumnNames<T>().ToArray();
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"UPDATE {table} SET ");
+            stringBuilder.Append($"UPDATE \"{table}\" SET ");
             for (int i = 0; i < columnNames.Count(); i++)
             {
                 stringBuilder.Append($"{columnNames[i]} = @{parameters.Count + i}");

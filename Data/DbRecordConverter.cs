@@ -53,7 +53,8 @@ namespace Data
             PropertyInfo[] properties = typeof(T).GetProperties();
             for (int i = startIndex; i < properties.Length + startIndex; i++)
             {
-                command.Parameters.AddWithValue(i.ToString(), properties[i - startIndex].GetValue(record));
+                object? value = properties[i - startIndex].GetValue(record);
+                command.Parameters.AddWithValue(i.ToString(), value == null ? DBNull.Value : value);
             }
         }
     }

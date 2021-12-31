@@ -35,7 +35,7 @@ namespace Data.SQL
             IEnumerable<string> columnNames = DbRecordConverter.ObjectToColumnNames<T>();
 
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.Append($"INSERT INTO {table} ({string.Join(',', columnNames)}) VALUES (");
+            stringBuilder.Append($"INSERT INTO \"{table}\" ({string.Join(',', columnNames)}) VALUES (");
             for (int i = 0; i < columnNames.Count(); i++)
             {
                 stringBuilder.Append($"@{i}");

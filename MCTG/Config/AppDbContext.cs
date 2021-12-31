@@ -7,11 +7,11 @@ namespace MCTG.Config
     {
         public const string ConnectionString = "Server=localhost;User Id=mctg;Password=pwd;Database=mctg;";
 
-        public DbSet<TestModel> TestModels;
+        public DbSet<User> Users;
 
         public AppDbContext() : base(ConnectionString)
         {
-            Bind("test", out TestModels);
+            Bind("user", out Users);
         }
     }
 }

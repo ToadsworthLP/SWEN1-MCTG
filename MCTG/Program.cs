@@ -10,12 +10,12 @@ namespace MCTG
     {
         public static void Main(string[] args)
         {
-            RestServer server = new RestServer(System.Net.IPAddress.Any, 25567);
+            RestServer server = new RestServer(System.Net.IPAddress.Any, 10001);
 
-            server.AddController<EchoController>();
-            server.AddController<TestController>();
+            server.AddController<UserController>();
 
-            server.AddScoped<ITestService, TestService>();
+            server.AddScoped<IPasswordHashService, PasswordHashService>();
+
             server.AddScoped<AppDbContext>();
 
             server.AddAuth<AuthProvider>();

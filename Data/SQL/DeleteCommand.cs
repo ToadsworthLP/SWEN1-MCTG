@@ -48,7 +48,7 @@ namespace Data.SQL
 
             if (filters.Count == 0) throw new InvalidOperationException("No Where() condition was set.");
 
-            string commandText = $"DELETE FROM {table} WHERE {string.Join(' ', filters)}";
+            string commandText = $"DELETE FROM \"{table}\" WHERE {string.Join(' ', filters)}";
 
             int affected;
             using (NpgsqlCommand command = new NpgsqlCommand(commandText, context.DbConnection))
