@@ -1,30 +1,37 @@
-﻿using Rest;
+﻿using MCTG.Models;
+using MCTG.Services;
+using Rest;
 
 namespace MCTG.Auth
 {
     internal class AuthProvider : IAuthProvider
     {
-        public Role currentRole;
+        public static ThreadLocal<User?> CurrentUser = new ThreadLocal<User?>();
+
+        private readonly ITokenService tokenService;
+
+        public AuthProvider(ITokenService tokenService)
+        {
+            this.tokenService = tokenService;
+        }
 
         public bool IsAuthorized(object? expected, string? token)
         {
-            Role role;
-            if (token == "admin")
+            if (expected is Role expectedRole)
             {
-                role = Role.ADMIN;
-            }
-            else if (token == "user")
-            {
-                role = Role.USER;
-            }
-            else
-            {
-                return false;
+                if (token == null) return false;
+
+                User? tokenUser = tokenService.ReadToken(token);
+
+                if (tokenUser == null) return false;
+
+                CurrentUser.Value = tokenUser;
+
+                return tokenUser.Role >= expectedRole;
             }
 
-            currentRole = role;
-
-            return expected is Role && (Role)expected == role;
+            CurrentUser.Value = null;
+            return false;
         }
     }
 }

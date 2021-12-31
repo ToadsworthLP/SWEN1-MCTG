@@ -62,6 +62,7 @@ namespace Rest
 
                         requestHandler.Handle(request);
                     }
+
                 });
             }
         }
@@ -71,7 +72,7 @@ namespace Rest
             controllers.AddController<T>();
         }
 
-        public void AddAuth<T>() where T : IAuthProvider, new()
+        public void AddAuth<T>() where T : IAuthProvider
         {
             useAuth = true;
             AddScoped<IAuthProvider, T>();

@@ -13,12 +13,15 @@ namespace MCTG
             RestServer server = new RestServer(System.Net.IPAddress.Any, 10001);
 
             server.AddController<UserController>();
+            server.AddController<SessionController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
+            server.AddScoped<ITokenService, TokenService>();
 
             server.AddScoped<AppDbContext>();
 
             server.AddAuth<AuthProvider>();
+
             server.Start();
         }
     }

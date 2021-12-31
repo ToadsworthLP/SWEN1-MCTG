@@ -2,10 +2,8 @@
 
 namespace Data
 {
-    public class DbContext
+    public class DbContext : IDisposable
     {
-        private static object transactionLock = new object();
-
         private IList<DbSet> dbSets = new List<DbSet>();
         public NpgsqlConnection DbConnection { get; init; }
 
@@ -15,9 +13,9 @@ namespace Data
             DbConnection.Open();
         }
 
-        ~DbContext()
+        public static void MapEnum<T>(string name) where T : struct, Enum
         {
-            DbConnection.Close();
+            NpgsqlConnection.GlobalTypeMapper.MapEnum<T>(name);
         }
 
         public void Bind<T>(string tableName, out DbSet<T> dbSet) where T : DbRecord, new()
@@ -28,17 +26,14 @@ namespace Data
 
         public void Commit()
         {
-            lock (transactionLock)
+            NpgsqlTransaction transaction = DbConnection.BeginTransaction();
+
+            foreach (DbSet dbSet in dbSets)
             {
-                NpgsqlTransaction transaction = DbConnection.BeginTransaction();
-
-                foreach (DbSet dbSet in dbSets)
-                {
-                    dbSet.Commit();
-                }
-
-                transaction.Commit();
+                dbSet.Commit();
             }
+
+            transaction.Commit();
         }
 
         public void Rollback()
@@ -47,6 +42,12 @@ namespace Data
             {
                 dbSet.Rollback();
             }
+        }
+
+        public void Dispose()
+        {
+            DbConnection.Close();
+            Console.WriteLine("closed");
         }
     }
 }

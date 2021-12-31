@@ -19,7 +19,7 @@ namespace MCTG.Services
         public bool Verify(byte[] hash, string input)
         {
             byte[] inputHash = Hash(input);
-            return inputHash == hash;
+            return inputHash.SequenceEqual(hash);
         }
     }
 }

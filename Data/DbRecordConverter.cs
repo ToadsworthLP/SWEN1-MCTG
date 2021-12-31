@@ -25,7 +25,8 @@ namespace Data
                     PropertyInfo target;
                     if (properties.TryGetValue(reader.GetName(i).ToLower(), out target))
                     {
-                        target.SetValue(result, reader.GetValue(i));
+                        object value = reader.GetValue(i);
+                        target.SetValue(result, value == DBNull.Value ? null : value);
                     }
                 }
 

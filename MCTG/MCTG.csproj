@@ -12,8 +12,4 @@
     <ProjectReference Include="..\RestServer\Rest.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Responses\" />
-  </ItemGroup>
-
 </Project>
