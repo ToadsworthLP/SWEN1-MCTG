@@ -2,16 +2,28 @@
 
 namespace Data
 {
-    public class DbContext : IDisposable
+    public class DbContext
     {
-        private IList<DbSet> dbSets = new List<DbSet>();
-        public NpgsqlConnection DbConnection { get; init; }
+        public const string ConnectionString = "Server=localhost;User Id=mctg;Password=pwd;Database=mctg;";
 
-        public DbContext(string connectionString)
+        // This avoids unnecessary database connections by always having at most one open per thread
+        private static ThreadLocal<NpgsqlConnection?> ThreadLocalDbConnection = new ThreadLocal<NpgsqlConnection?>();
+
+        public NpgsqlConnection DbConnection
         {
-            DbConnection = new NpgsqlConnection(connectionString);
-            DbConnection.Open();
+            get
+            {
+                if (ThreadLocalDbConnection.Value == null)
+                {
+                    ThreadLocalDbConnection.Value = new NpgsqlConnection(ConnectionString);
+                    ThreadLocalDbConnection.Value.Open();
+                }
+
+                return ThreadLocalDbConnection.Value;
+            }
         }
+
+        private IList<DbSet> dbSets = new List<DbSet>();
 
         public static void MapEnum<T>(string name) where T : struct, Enum
         {
@@ -42,12 +54,6 @@ namespace Data
             {
                 dbSet.Rollback();
             }
-        }
-
-        public void Dispose()
-        {
-            DbConnection.Close();
-            Console.WriteLine("closed");
         }
     }
 }

@@ -6,7 +6,6 @@ namespace MCTG.Config
 {
     internal class AppDbContext : DbContext
     {
-        public const string ConnectionString = "Server=localhost;User Id=mctg;Password=pwd;Database=mctg;";
 
         public DbSet<User> Users;
 
@@ -15,7 +14,7 @@ namespace MCTG.Config
             MapEnum<Role>("role");
         }
 
-        public AppDbContext() : base(ConnectionString)
+        public AppDbContext()
         {
             Bind("user", out Users);
         }
