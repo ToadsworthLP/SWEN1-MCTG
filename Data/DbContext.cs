@@ -4,9 +4,8 @@ namespace Data
 {
     public class DbContext
     {
-        public const string ConnectionString = "Server=localhost;User Id=mctg;Password=pwd;Database=mctg;";
+        public const string ConnectionString = "Server=localhost;User Id=mctg;Password=pwd;Database=mctg;Maximum Pool Size=50";
 
-        // This avoids unnecessary database connections by always having at most one open per thread
         private static ThreadLocal<NpgsqlConnection?> ThreadLocalDbConnection = new ThreadLocal<NpgsqlConnection?>();
 
         public NpgsqlConnection DbConnection
@@ -53,6 +52,15 @@ namespace Data
             foreach (DbSet dbSet in dbSets)
             {
                 dbSet.Rollback();
+            }
+        }
+
+        public static void NotifyEndOfRequest()
+        {
+            if (ThreadLocalDbConnection.Value != null)
+            {
+                ThreadLocalDbConnection.Value.Dispose();
+                ThreadLocalDbConnection.Value = null;
             }
         }
     }

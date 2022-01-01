@@ -12,6 +12,8 @@ namespace MCTG
         {
             RestServer server = new RestServer(System.Net.IPAddress.Any, 10001);
 
+            server.RequestFinished += (sender, args) => AppDbContext.NotifyEndOfRequest();
+
             server.AddController<UserController>();
             server.AddController<SessionController>();
 

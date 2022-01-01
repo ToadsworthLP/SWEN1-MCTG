@@ -8,6 +8,9 @@ namespace Rest
 {
     public class RestServer
     {
+        public event EventHandler<RequestEventArgs> RequestStarted;
+        public event EventHandler<RequestEventArgs> RequestFinished;
+
         private IPAddress address;
         private int port;
 
@@ -48,6 +51,8 @@ namespace Rest
                             return; // Ignore requests that don't follow the HTTP standard
                         }
 
+                        if (RequestStarted != null) RequestStarted(this, new RequestEventArgs(request));
+
                         RequestHandler requestHandler;
 
                         if (useAuth)
@@ -61,6 +66,8 @@ namespace Rest
                         }
 
                         requestHandler.Handle(request);
+
+                        if (RequestFinished != null) RequestFinished(this, new RequestEventArgs(request));
                     }
 
                 });
