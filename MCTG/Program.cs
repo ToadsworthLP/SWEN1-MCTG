@@ -16,6 +16,8 @@ namespace MCTG
 
             server.AddController<UserController>();
             server.AddController<SessionController>();
+            server.AddController<StatsController>();
+            server.AddController<ScoreboardController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
             server.AddScoped<ITokenService, TokenService>();

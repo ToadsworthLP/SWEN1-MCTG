@@ -28,7 +28,7 @@ namespace MCTG.Controllers
         public IApiResponse ViewProfile([FromRoute] string username)
         {
             User? target = new SelectCommand<User>().From(db.Users).WhereEquals(nameof(User.Username), username).Run(db).FirstOrDefault();
-            if (target != null && AuthProvider.CurrentUser.Value != null && target.Id == AuthProvider.CurrentUser.Value.Id)
+            if (target != null && AuthProvider.CurrentUser != null && target.Id == AuthProvider.CurrentUser.Id)
             {
                 return new Ok(new UserProfileResponse(target.Username, target.Bio, target.Image, target.Elo));
             }
@@ -66,7 +66,7 @@ namespace MCTG.Controllers
         public IApiResponse Edit([FromBody] EditUserRequest request, [FromRoute] string username)
         {
             User? target = new SelectCommand<User>().From(db.Users).WhereEquals(nameof(User.Username), username).Run(db).FirstOrDefault();
-            if (target != null && AuthProvider.CurrentUser.Value != null && target.Id == AuthProvider.CurrentUser.Value.Id)
+            if (target != null && AuthProvider.CurrentUser != null && target.Id == AuthProvider.CurrentUser.Id)
             {
                 User updated = target with { Username = request.Name, Bio = request.Bio, Image = request.Image };
                 db.Users.Update(updated);

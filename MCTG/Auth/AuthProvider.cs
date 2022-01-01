@@ -6,7 +6,9 @@ namespace MCTG.Auth
 {
     internal class AuthProvider : IAuthProvider
     {
-        public static ThreadLocal<User?> CurrentUser = new ThreadLocal<User?>();
+        public static User? CurrentUser { get { return currentUser.Value; } }
+
+        private static ThreadLocal<User?> currentUser = new ThreadLocal<User?>();
 
         private readonly ITokenService tokenService;
 
@@ -25,12 +27,12 @@ namespace MCTG.Auth
 
                 if (tokenUser == null) return false;
 
-                CurrentUser.Value = tokenUser;
+                currentUser.Value = tokenUser;
 
                 return tokenUser.Role >= expectedRole;
             }
 
-            CurrentUser.Value = null;
+            currentUser.Value = null;
             return false;
         }
     }
