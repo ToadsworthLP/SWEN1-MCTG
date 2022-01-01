@@ -1,5 +1,6 @@
 ﻿using Data;
 using MCTG.Auth;
+using MCTG.Gameplay;
 using MCTG.Models;
 
 namespace MCTG.Config
@@ -8,15 +9,23 @@ namespace MCTG.Config
     {
 
         public DbSet<User> Users;
+        public DbSet<Card> Cards;
+        public DbSet<PackageEntry> PackageEntries;
+        public DbSet<Package> Packages;
 
         static AppDbContext()
         {
             MapEnum<Role>("role");
+            MapEnum<CardCategory>("card_category");
+            MapEnum<CardElement>("card_element");
         }
 
         public AppDbContext()
         {
             Bind("user", out Users);
+            Bind("card", out Cards);
+            Bind("package_entry", out PackageEntries);
+            Bind("package", out Packages);
         }
     }
 }

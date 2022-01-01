@@ -1,6 +1,7 @@
 ﻿using MCTG.Auth;
 using MCTG.Config;
 using MCTG.Controllers;
+using MCTG.Gameplay;
 using MCTG.Services;
 using Rest;
 
@@ -18,11 +19,18 @@ namespace MCTG
             server.AddController<SessionController>();
             server.AddController<StatsController>();
             server.AddController<ScoreboardController>();
+            server.AddController<PackageController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
             server.AddScoped<ITokenService, TokenService>();
 
             server.AddScoped<AppDbContext>();
+
+            CardTypeRegistry cardTypeRegistry = new CardTypeRegistry();
+            cardTypeRegistry.AddDefaultCardTypes();
+            server.AddSingletonInstance(cardTypeRegistry);
+
+            server.AddSingletonInstance<ICardElementDamageCalculator>(new DefaultCardElementDamageCalculator());
 
             server.AddAuth<AuthProvider>();
 

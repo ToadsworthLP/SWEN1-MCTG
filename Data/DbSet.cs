@@ -46,7 +46,9 @@ namespace Data
 
         public T Create(T record)
         {
-            T newRecord = record with { Id = Guid.NewGuid() };
+            T newRecord = record;
+            if (newRecord.Id == Guid.Empty) newRecord = newRecord with { Id = Guid.NewGuid() };
+
             toCreate.Add(newRecord);
 
             return newRecord;

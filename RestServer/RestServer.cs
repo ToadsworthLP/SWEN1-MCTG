@@ -95,6 +95,11 @@ namespace Rest
             kernel.Bind<TImplementation>().ToSelf().InSingletonScope();
         }
 
+        public void AddSingletonInstance<T>(T instance)
+        {
+            kernel.Bind<T>().ToConstant(instance);
+        }
+
         public void AddScoped<TInterface, TImplementation>() where TImplementation : TInterface
         {
             kernel.Bind<TInterface>().To<TImplementation>().InCallScope();

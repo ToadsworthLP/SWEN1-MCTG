@@ -11,6 +11,7 @@ namespace MCTG.Models
         public string? Image { get; set; }
         public int Elo { get; set; }
         public Role Role { get; set; }
+        public int Coins { get; set; }
 
         public User() { }
 
@@ -20,15 +21,17 @@ namespace MCTG.Models
             PasswordHash = passwordHash;
             Role = role;
             Elo = 100;
+            Coins = 20;
         }
 
-        public User(string username, byte[] passwordHash, Role role, string? bio, string? image, int elo)
+        public User(string username, byte[] passwordHash, Role role, string? bio, string? image, int elo, int coins)
         {
             Username = username;
             PasswordHash = passwordHash;
             Bio = bio;
             Image = image;
             Elo = elo;
+            Coins = coins;
         }
     }
 }
