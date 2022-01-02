@@ -23,7 +23,7 @@ namespace MCTG.Controllers
         {
             if (requests.Length == 0) return new BadRequest(new ErrorResponse("Cannot create an empty package."));
 
-            Package package = db.Packages.Create(new Package(5));
+            Package package = db.Packages.Create(new Package(Constants.DEFAULT_PACKAGE_PRICE));
 
             foreach (AddPackageRequest request in requests)
             {

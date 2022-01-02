@@ -22,6 +22,7 @@ namespace MCTG
             server.AddController<PackageController>();
             server.AddController<PackageTransactionController>();
             server.AddController<CardsController>();
+            server.AddController<DeckController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
             server.AddScoped<ITokenService, TokenService>();

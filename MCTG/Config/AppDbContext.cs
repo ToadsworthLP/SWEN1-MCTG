@@ -12,6 +12,7 @@ namespace MCTG.Config
         public DbSet<Card> Cards;
         public DbSet<PackageEntry> PackageEntries;
         public DbSet<Package> Packages;
+        public DbSet<DeckEntry> DeckEntries;
 
         static AppDbContext()
         {
@@ -26,6 +27,7 @@ namespace MCTG.Config
             Bind("card", out Cards);
             Bind("package", out Packages);
             Bind("package_entry", out PackageEntries);
+            Bind("deck_entry", out DeckEntries);
         }
     }
 }

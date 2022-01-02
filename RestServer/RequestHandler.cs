@@ -81,8 +81,7 @@ namespace Rest
 
                     object? controller = kernel.Get(handlerInfo.ControllerType);
 
-                    bool hasParameters = parameterValues.Where(x => x != null).Any();
-                    if (hasParameters)
+                    if (methodParameters.Length > 0)
                     {
                         response = (IApiResponse?)handlerInfo.Handler.Invoke(controller, parameterValues);
                     }
