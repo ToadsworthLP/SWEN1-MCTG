@@ -20,6 +20,7 @@ namespace MCTG
             server.AddController<StatsController>();
             server.AddController<ScoreboardController>();
             server.AddController<PackageController>();
+            server.AddController<PackageTransactionController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
             server.AddScoped<ITokenService, TokenService>();

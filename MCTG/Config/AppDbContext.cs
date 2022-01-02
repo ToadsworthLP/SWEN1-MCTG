@@ -24,8 +24,8 @@ namespace MCTG.Config
         {
             Bind("user", out Users);
             Bind("card", out Cards);
-            Bind("package_entry", out PackageEntries);
             Bind("package", out Packages);
+            Bind("package_entry", out PackageEntries);
         }
     }
 }

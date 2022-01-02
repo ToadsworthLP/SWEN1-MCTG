@@ -27,8 +27,10 @@ namespace MCTG.Controllers
         [Restrict(Role.USER)]
         public IApiResponse ViewProfile([FromRoute] string username)
         {
+            if (AuthProvider.CurrentUser == null) return new BadRequest(new ErrorResponse("Not logged in."));
+
             User? target = new SelectCommand<User>().From(db.Users).WhereEquals(nameof(User.Username), username).Run(db).FirstOrDefault();
-            if (target != null && AuthProvider.CurrentUser != null && target.Id == AuthProvider.CurrentUser.Id)
+            if (target != null && target.Id == AuthProvider.CurrentUser.Id)
             {
                 return new Ok(new UserProfileResponse(target.Username, target.Bio, target.Image, target.Elo));
             }
@@ -65,8 +67,10 @@ namespace MCTG.Controllers
         [Restrict(Role.USER)]
         public IApiResponse Edit([FromBody] EditUserRequest request, [FromRoute] string username)
         {
+            if (AuthProvider.CurrentUser == null) return new BadRequest(new ErrorResponse("Not logged in."));
+
             User? target = new SelectCommand<User>().From(db.Users).WhereEquals(nameof(User.Username), username).Run(db).FirstOrDefault();
-            if (target != null && AuthProvider.CurrentUser != null && target.Id == AuthProvider.CurrentUser.Id)
+            if (target != null && target.Id == AuthProvider.CurrentUser.Id)
             {
                 User updated = target with { Username = request.Name, Bio = request.Bio, Image = request.Image };
                 db.Users.Update(updated);

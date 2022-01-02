@@ -8,6 +8,7 @@ namespace Data.SQL
         private List<(string, object)> parameters;
         private List<string> filters;
         private string orderBy = "";
+        private string limit = "";
 
         public SelectCommand()
         {
@@ -55,6 +56,12 @@ namespace Data.SQL
             return this;
         }
 
+        public SelectCommand<T> Limit(int limit)
+        {
+            this.limit = $" LIMIT {limit}";
+            return this;
+        }
+
         public IEnumerable<T> Run(DbContext context)
         {
             if (table == null) throw new InvalidOperationException("No table to execute the command on was set.");
@@ -63,11 +70,11 @@ namespace Data.SQL
 
             if (filters.Count > 0)
             {
-                commandText = $"SELECT * FROM \"{table}\" WHERE {string.Join(' ', filters)} {orderBy}";
+                commandText = $"SELECT * FROM \"{table}\" WHERE {string.Join(' ', filters)} {orderBy} {limit}";
             }
             else
             {
-                commandText = $"SELECT * FROM \"{table}\" {orderBy}";
+                commandText = $"SELECT * FROM \"{table}\" {orderBy} {limit}";
             }
 
             IEnumerable<T> results;
