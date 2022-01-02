@@ -21,9 +21,11 @@ namespace MCTG
             server.AddController<ScoreboardController>();
             server.AddController<PackageController>();
             server.AddController<PackageTransactionController>();
+            server.AddController<CardsController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
             server.AddScoped<ITokenService, TokenService>();
+            server.AddScoped<ICardNameService, CardNameService>();
 
             server.AddScoped<AppDbContext>();
 
