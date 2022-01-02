@@ -16,11 +16,13 @@ namespace MCTG.Controllers
     {
         private readonly AppDbContext db;
         private readonly ICardNameService cardNameService;
+        private readonly ICardUsageCheckService cardUsageCheckService;
 
-        public DeckController(AppDbContext db, ICardNameService cardNameService)
+        public DeckController(AppDbContext db, ICardNameService cardNameService, ICardUsageCheckService cardUsageCheckService)
         {
             this.db = db;
             this.cardNameService = cardNameService;
+            this.cardUsageCheckService = cardUsageCheckService;
         }
 
         [Method(Method.GET)]
@@ -64,14 +66,12 @@ namespace MCTG.Controllers
             {
                 Card? card = db.Cards.Get(cardId);
 
-                if (card != null && card.Owner == AuthProvider.CurrentUser.Id)
+                if (card == null || card.Owner != AuthProvider.CurrentUser.Id || cardUsageCheckService.IsInTradeOffer(card))
                 {
-                    cards.Add(card);
+                    return new NotFound(new ErrorResponse($"The card {cardId} does not exist or is currently in use."));
                 }
-                else
-                {
-                    return new NotFound(new ErrorResponse($"Invalid card ID: {cardId}."));
-                }
+
+                cards.Add(card);
             }
 
             // Clear current deck

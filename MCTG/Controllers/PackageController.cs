@@ -1,4 +1,5 @@
-﻿using MCTG.Config;
+﻿using MCTG.Auth;
+using MCTG.Config;
 using MCTG.Models;
 using MCTG.Requests;
 using MCTG.Responses;
@@ -19,6 +20,7 @@ namespace MCTG.Controllers
         }
 
         [Method(Method.POST)]
+        [Restrict(Role.ADMIN)]
         public IApiResponse AddPackage([FromBody] AddPackageRequest[] requests)
         {
             if (requests.Length == 0) return new BadRequest(new ErrorResponse("Cannot create an empty package."));

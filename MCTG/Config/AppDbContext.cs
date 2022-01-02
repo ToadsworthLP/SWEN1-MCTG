@@ -13,6 +13,7 @@ namespace MCTG.Config
         public DbSet<PackageEntry> PackageEntries;
         public DbSet<Package> Packages;
         public DbSet<DeckEntry> DeckEntries;
+        public DbSet<TradeOffer> TradeOffers;
 
         static AppDbContext()
         {
@@ -28,6 +29,7 @@ namespace MCTG.Config
             Bind("package", out Packages);
             Bind("package_entry", out PackageEntries);
             Bind("deck_entry", out DeckEntries);
+            Bind("trade_offer", out TradeOffers);
         }
     }
 }
