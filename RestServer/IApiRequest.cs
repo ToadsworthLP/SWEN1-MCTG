@@ -7,6 +7,5 @@
         public string? AuthToken { get; }
         public Dictionary<string, string> Parameters { get; }
         public string Content { get; }
-
     }
 }

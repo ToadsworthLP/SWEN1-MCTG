@@ -33,6 +33,10 @@ namespace Rest
 
         public void Handle(IApiRequest request)
         {
+#if DEBUG
+            Console.WriteLine($"Incoming request:\n{request}\n");
+#endif
+
             IApiResponse? response = null;
 
             HandlerInfo? handlerInfo = registry.GetHandler(request);
@@ -104,6 +108,10 @@ namespace Rest
             httpResponse.Send(writer);
 
             writer.Flush();
+
+#if DEBUG
+            Console.WriteLine($"Sent response:\n{response}\n");
+#endif
         }
 
         private bool ValidateRequest(IApiRequest request, ref IApiResponse? response, HandlerInfo? handlerInfo)

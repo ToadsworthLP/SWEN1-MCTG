@@ -33,11 +33,19 @@ namespace Rest
             TcpListener listener = new TcpListener(address, port);
             listener.Start();
 
+#if DEBUG
+            Console.WriteLine($"Started server at {address}:{port}.");
+#endif
+
             while (true)
             {
                 TcpClient client = listener.AcceptTcpClient();
                 Task.Run(() =>
                 {
+#if DEBUG
+                    Console.WriteLine($"\nClient at {client.Client.RemoteEndPoint} connected, handled by thread {Thread.CurrentThread.ManagedThreadId}.\n");
+#endif
+
                     using (StreamReader reader = new StreamReader(client.GetStream()))
                     using (StreamWriter writer = new StreamWriter(client.GetStream()) { AutoFlush = true })
                     {
@@ -70,6 +78,9 @@ namespace Rest
                         if (RequestFinished != null) RequestFinished(this, new RequestEventArgs(request));
                     }
 
+#if DEBUG
+                    Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} finished.");
+#endif
                 });
             }
         }

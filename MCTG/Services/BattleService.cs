@@ -112,6 +112,10 @@ namespace MCTG.Services
                 }
             }
 
+#if DEBUG
+            Console.WriteLine($"--- START OF BATTLE LOG ---\n{string.Join('\n', log)}\n--- END OF BATTLE LOG ---\n");
+#endif
+
             return new BattleSummary(result, log);
         }
 

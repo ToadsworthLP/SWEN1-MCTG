@@ -18,7 +18,6 @@ namespace Rest.Http
             {
                 httpResponse = $"HTTP/1.1 {response.Status}\nServer: {SERVER}\nContent-Length: {responseJson.Length}\nContent-Type: application/json; charset=utf-8\n\n{responseJson}";
             }
-
         }
 
         public void Send(StreamWriter writer)
