@@ -7,6 +7,11 @@ namespace MCTG.Services
     {
         private readonly AppDbContext db;
 
+        public EloService(AppDbContext db)
+        {
+            this.db = db;
+        }
+
         public void UpdateElo(User winner, User loser)
         {
             db.Users.Update(winner with { Elo = winner.Elo + 3 });

@@ -33,14 +33,13 @@ namespace MCTG
             server.AddScoped<IDeckService, DeckService>();
             server.AddScoped<IBattleService, BattleService>();
             server.AddScoped<IEloService, EloService>();
+            server.AddScoped<ICardElementDamageCalculator, DefaultCardElementDamageCalculator>();
 
             server.AddScoped<AppDbContext>();
 
             CardTypeRegistry cardTypeRegistry = new CardTypeRegistry();
             cardTypeRegistry.AddDefaultCardTypes();
             server.AddSingletonInstance(cardTypeRegistry);
-
-            server.AddSingletonInstance<ICardElementDamageCalculator>(new DefaultCardElementDamageCalculator());
 
             server.AddAuth<AuthProvider>();
 
