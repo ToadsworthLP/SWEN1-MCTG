@@ -2,6 +2,7 @@
 using MCTG.Auth;
 using MCTG.Config;
 using MCTG.Gameplay;
+using MCTG.Gameplay.CardTypes;
 using MCTG.Models;
 using MCTG.Requests;
 using MCTG.Responses;
@@ -70,15 +71,66 @@ namespace MCTG.Controllers
                 db.TradeOffers.Create(new TradeOffer((Guid)request.Id, card.Id, request.Category, request.MinDamage));
             }
 
+            db.Commit();
+            return new Ok();
+        }
+
+        [Method(Method.POST)]
+        [Restrict(Role.USER)]
+        public IApiResponse AcceptOffer([FromBody] string tradeCardIdStr, [FromRoute] string offerIdStr)
+        {
+            if (AuthProvider.CurrentUser == null) return new BadRequest(new ErrorResponse("Not logged in."));
+
+            Guid offerId;
             try
             {
-                db.Commit();
-                return new Ok();
+                offerId = Guid.Parse(offerIdStr);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return new BadRequest(new ErrorResponse($"An error occured: {ex}"));
+                return new BadRequest(new ErrorResponse("Invalid trade offer ID."));
             }
+
+            Guid tradeCardId;
+            try
+            {
+                tradeCardId = Guid.Parse(tradeCardIdStr);
+            }
+            catch (Exception)
+            {
+                return new BadRequest(new ErrorResponse("Invalid card ID."));
+            }
+
+            TradeOffer? offer = db.TradeOffers.Get(offerId);
+
+            if (offer == null) return new NotFound(new ErrorResponse($"No trade offer with ID {offerId} found."));
+
+            Card? offerCard = db.Cards.Get(offer.Offered);
+            Card? tradeCard = db.Cards.Get(tradeCardId);
+
+            if (offerCard == null || tradeCard == null) return new NotFound(new ErrorResponse("Invalid card ID.."));
+
+            if (offerCard.Owner == AuthProvider.CurrentUser.Id) return new BadRequest(new ErrorResponse("Cannot trade with yourself."));
+
+            // Check if the card meets the offer requirements
+
+            ICardType? tradeCardType = cardTypeRegistry.Get(tradeCard.Type);
+
+            if (tradeCardType == null) return new InternalServerError(new ErrorResponse($"Invalid card type: {tradeCard.Type}."));
+
+            if (tradeCard.Damage < offer.MinDamage || tradeCardType.Category != offer.Category) return new BadRequest(new ErrorResponse("The offered cards does not meet the offer requirements."));
+
+            // Do the actual trade
+
+            User tradePartner = db.Users.Get((Guid)offerCard.Owner);
+
+            db.Cards.Update(offerCard with { Owner = AuthProvider.CurrentUser.Id });
+            db.Cards.Update(tradeCard with { Owner = tradePartner.Id });
+
+            db.TradeOffers.Delete(offer);
+
+            db.Commit();
+            return new Ok();
         }
 
         [Method(Method.DELETE)]
@@ -101,11 +153,11 @@ namespace MCTG.Controllers
 
             if (offer == null) return new NotFound(new ErrorResponse($"No trade offer with ID {offerId} found."));
 
-            if (db.Cards.Get(offer.Offered)?.Owner != AuthProvider.CurrentUser.Id) return new Unauthorized("Cannot delete someone else's trade offer.");
+            if (db.Cards.Get(offer.Offered)?.Owner != AuthProvider.CurrentUser.Id) return new Unauthorized(new ErrorResponse("Cannot delete someone else's trade offer."));
 
             db.TradeOffers.Delete(offer);
-            db.Commit();
 
+            db.Commit();
             return new Ok();
         }
     }

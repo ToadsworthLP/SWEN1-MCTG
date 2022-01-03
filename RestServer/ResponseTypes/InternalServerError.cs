@@ -1,6 +1,6 @@
 ﻿namespace Rest.ResponseTypes
 {
-    internal class InternalServerError : IApiResponse
+    public class InternalServerError : IApiResponse
     {
         public string Status => "500 Internal Server Error";
 
