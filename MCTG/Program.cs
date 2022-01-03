@@ -24,11 +24,15 @@ namespace MCTG
             server.AddController<CardsController>();
             server.AddController<DeckController>();
             server.AddController<TradeController>();
+            server.AddController<BattleController>();
 
             server.AddScoped<IPasswordHashService, PasswordHashService>();
             server.AddScoped<ITokenService, TokenService>();
             server.AddScoped<ICardNameService, CardNameService>();
             server.AddScoped<ICardUsageCheckService, CardUsageCheckService>();
+            server.AddScoped<IDeckService, DeckService>();
+            server.AddScoped<IBattleService, BattleService>();
+            server.AddScoped<IEloService, EloService>();
 
             server.AddScoped<AppDbContext>();
 

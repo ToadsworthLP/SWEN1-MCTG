@@ -1,5 +1,4 @@
-﻿using Data.SQL;
-using MCTG.Auth;
+﻿using MCTG.Auth;
 using MCTG.Config;
 using MCTG.Models;
 using MCTG.Responses;
@@ -17,12 +16,14 @@ namespace MCTG.Controllers
         private readonly AppDbContext db;
         private readonly ICardNameService cardNameService;
         private readonly ICardUsageCheckService cardUsageCheckService;
+        private readonly IDeckService deckService;
 
-        public DeckController(AppDbContext db, ICardNameService cardNameService, ICardUsageCheckService cardUsageCheckService)
+        public DeckController(AppDbContext db, ICardNameService cardNameService, ICardUsageCheckService cardUsageCheckService, IDeckService deckService)
         {
             this.db = db;
             this.cardNameService = cardNameService;
             this.cardUsageCheckService = cardUsageCheckService;
+            this.deckService = deckService;
         }
 
         [Method(Method.GET)]
@@ -31,7 +32,7 @@ namespace MCTG.Controllers
         {
             if (AuthProvider.CurrentUser == null) return new BadRequest(new ErrorResponse("Not logged in."));
 
-            IEnumerable<Card> deck = GetUserDeck(AuthProvider.CurrentUser);
+            IEnumerable<Card> deck = deckService.GetUserDeck(AuthProvider.CurrentUser);
 
             if (format == "plain")
             {
@@ -75,7 +76,7 @@ namespace MCTG.Controllers
             }
 
             // Clear current deck
-            IEnumerable<DeckEntry> currentDeck = GetUserDeckEntries(AuthProvider.CurrentUser);
+            IEnumerable<DeckEntry> currentDeck = deckService.GetUserDeckEntries(AuthProvider.CurrentUser);
             foreach (DeckEntry entry in currentDeck)
             {
                 db.DeckEntries.Delete(entry);
@@ -89,16 +90,6 @@ namespace MCTG.Controllers
 
             db.Commit();
             return new Ok();
-        }
-
-        private IEnumerable<DeckEntry> GetUserDeckEntries(User user)
-        {
-            return new SelectCommand<DeckEntry>().From(db.DeckEntries).WhereEquals(nameof(DeckEntry.Owner), user.Id).Run(db);
-        }
-
-        private IEnumerable<Card> GetUserDeck(User user)
-        {
-            return GetUserDeckEntries(user).Select((entry) => db.Cards.Get(entry.Card));
         }
     }
 }

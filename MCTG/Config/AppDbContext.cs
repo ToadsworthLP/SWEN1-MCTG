@@ -14,6 +14,7 @@ namespace MCTG.Config
         public DbSet<Package> Packages;
         public DbSet<DeckEntry> DeckEntries;
         public DbSet<TradeOffer> TradeOffers;
+        public DbSet<LobbyEntry> Lobby;
 
         static AppDbContext()
         {
@@ -30,6 +31,7 @@ namespace MCTG.Config
             Bind("package_entry", out PackageEntries);
             Bind("deck_entry", out DeckEntries);
             Bind("trade_offer", out TradeOffers);
+            Bind("lobby", out Lobby);
         }
     }
 }
