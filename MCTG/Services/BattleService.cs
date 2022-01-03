@@ -46,6 +46,7 @@ namespace MCTG.Services
             for (int i = 0; i < Constants.MAX_ROUNDS; i++)
             {
                 log.Add($"Round {i + 1}:");
+                log.Add($"{name1}'s cards: {deck1.Count}, {name2}'s cards: {deck2.Count}");
 
                 // Pick a random card from each deck
 
@@ -58,16 +59,26 @@ namespace MCTG.Services
                 // Calculate damage
 
                 bool useElementalDamage = type1.Category == CardCategory.SPELL || type2.Category == CardCategory.SPELL;
+                bool crit1 = random.NextDouble() <= Constants.CRIT_CHANCE;
+                bool crit2 = random.NextDouble() <= Constants.CRIT_CHANCE;
 
                 double attackDamage1 = card1.Damage *
                                         type1.GetAttackDamageMultiplier(type2) *
                                         type2.GetDefendDamageMultiplier(type1) *
-                                        (useElementalDamage ? cardElementDamageCalculator.GetDamageMultiplier(type1.Element, type2.Element) : 1);
+                                        (useElementalDamage ? cardElementDamageCalculator.GetDamageMultiplier(type1.Element, type2.Element) : 1) *
+                                        (deck1.Count == 1 ? Constants.LAST_CARD_MULTIPLIER : 1) *
+                                        (crit1 ? Constants.CRIT_DAMAGE_MULTIPLIER : 1);
+
 
                 double attackDamage2 = card2.Damage *
                                         type2.GetAttackDamageMultiplier(type1) *
                                         type1.GetDefendDamageMultiplier(type2) *
-                                        (useElementalDamage ? cardElementDamageCalculator.GetDamageMultiplier(type2.Element, type1.Element) : 1);
+                                        (useElementalDamage ? cardElementDamageCalculator.GetDamageMultiplier(type2.Element, type1.Element) : 1) *
+                                        (deck2.Count == 1 ? Constants.LAST_CARD_MULTIPLIER : 1) *
+                                        (crit2 ? Constants.CRIT_DAMAGE_MULTIPLIER : 1);
+
+                // The last card in a player's deck gets a slight power boost (unique feature 1)
+                // There is a low chance that a card randomly does more damage = critical hit (unique feature 2)
 
                 log.Add($"{name1}'s card: {cardNameService.GetName(card1)} (Type: {card1.Type}, Base Damage: {card1.Damage}, Category: {type1.Category}, Element: {type1.Element})");
                 log.Add($"{name2}'s card: {cardNameService.GetName(card2)} (Type: {card2.Type}, Base Damage: {card2.Damage}, Category: {type2.Category}, Element: {type2.Element})");
@@ -76,14 +87,14 @@ namespace MCTG.Services
 
                 if (attackDamage1 > attackDamage2) // Card 1 is stronger, move card 2 into player 1's deck
                 {
-                    log.Add($"{name1}'s {cardNameService.GetName(card1)} ({attackDamage1} total damage) beat {name2}'s {cardNameService.GetName(card2)} ({attackDamage2} total damage)");
+                    log.Add($"{name1}'s {cardNameService.GetName(card1)} ({attackDamage1} {(crit1 ? "critical" : "total")} damage) beat {name2}'s {cardNameService.GetName(card2)} ({attackDamage2} total damage)");
 
                     deck2.Remove(card2);
                     deck1.Add(card2);
                 }
                 else if (attackDamage1 < attackDamage2) // Card 2 is stronger, move card 1 into player 2's deck
                 {
-                    log.Add($"{name2}'s {cardNameService.GetName(card2)} ({attackDamage2} total damage) beat {name1}'s {cardNameService.GetName(card1)} ({attackDamage1} total damage)");
+                    log.Add($"{name2}'s {cardNameService.GetName(card2)} ({attackDamage2} {(crit2 ? "critical" : "total")} damage) beat {name1}'s {cardNameService.GetName(card1)} ({attackDamage1} total damage)");
 
                     deck1.Remove(card1);
                     deck2.Add(card1);
