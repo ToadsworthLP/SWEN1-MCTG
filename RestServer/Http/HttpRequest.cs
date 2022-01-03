@@ -136,7 +136,7 @@ namespace Rest.Http
 
         public override string ToString()
         {
-            return $"Method: {Method}, Path: {Path}, Auth token present: {(AuthToken == null ? "No" : "Yes")}, Parameters: {Parameters.Count}{(Content == "" ? "" : "\n")}{Content}";
+            return $"Method: {Method}, Path: {Path}, Auth token present: {(AuthToken == null ? "No" : "Yes")}, Body present: {(Content == "" ? "No" : "Yes")}, Parameters: {Parameters.Count}";
         }
 
         private enum Section
