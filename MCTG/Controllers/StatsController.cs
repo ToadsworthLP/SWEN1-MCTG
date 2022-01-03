@@ -23,7 +23,7 @@ namespace MCTG.Controllers
         {
             if (AuthProvider.CurrentUser == null) return new BadRequest(new ErrorResponse("Not logged in."));
 
-            return new Ok(new UserStatsResponse(AuthProvider.CurrentUser.Elo));
+            return new Ok(new UserStatsResponse(AuthProvider.CurrentUser.BattleCount, AuthProvider.CurrentUser.Elo));
         }
     }
 }

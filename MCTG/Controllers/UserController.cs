@@ -32,7 +32,7 @@ namespace MCTG.Controllers
             User? target = new SelectCommand<User>().From(db.Users).WhereEquals(nameof(User.Username), username).Run(db).FirstOrDefault();
             if (target != null && target.Id == AuthProvider.CurrentUser.Id)
             {
-                return new Ok(new UserProfileResponse(target.Username, target.Bio, target.Image, target.Elo));
+                return new Ok(new UserProfileResponse(target.Username, target.Bio, target.Image, target.BattleCount, target.Elo));
             }
             else
             {

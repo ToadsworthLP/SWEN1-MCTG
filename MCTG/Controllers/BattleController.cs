@@ -63,18 +63,23 @@ namespace MCTG.Controllers
                 switch (battleSummary.Result)
                 {
                     case BattleSummary.BattleResult.P1WON:
-                        winner = AuthProvider.CurrentUser;
-                        loser = opponent;
+                        winner = AuthProvider.CurrentUser with { BattleCount = AuthProvider.CurrentUser.BattleCount + 1 };
+                        loser = opponent with { BattleCount = opponent.BattleCount + 1 };
                         break;
                     case BattleSummary.BattleResult.P2WON:
-                        winner = opponent;
-                        loser = AuthProvider.CurrentUser;
+                        winner = opponent with { BattleCount = opponent.BattleCount + 1 };
+                        loser = AuthProvider.CurrentUser with { BattleCount = AuthProvider.CurrentUser.BattleCount + 1 };
                         break;
                 }
 
                 if (battleSummary.Result != BattleSummary.BattleResult.DRAW)
                 {
                     eloService.UpdateElo(winner, loser);
+                }
+                else // not exactly a great way to get around missing incremental changes in the data layer, but it works
+                {
+                    db.Users.Update(AuthProvider.CurrentUser with { BattleCount = AuthProvider.CurrentUser.BattleCount + 1 });
+                    db.Users.Update(opponent with { BattleCount = opponent.BattleCount + 1 });
                 }
 
                 db.Commit();
