@@ -118,7 +118,7 @@ namespace MCTG.Controllers
 
             if (tradeCardType == null) return new InternalServerError(new ErrorResponse($"Invalid card type: {tradeCard.Type}."));
 
-            if (tradeCard.Damage < offer.MinDamage || tradeCardType.Category != offer.Category) return new BadRequest(new ErrorResponse("The offered cards does not meet the offer requirements."));
+            if (tradeCard.Damage < offer.MinDamage || tradeCardType.Category != offer.Category) return new BadRequest(new ErrorResponse("The offered card does not meet the offer requirements."));
 
             // Do the actual trade
 
