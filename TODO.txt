@@ -1,7 +1,0 @@
-- Set up database communication
-- based on records (immutable) that have a GUID property
-- repo.get returns record of DB state
-- repo.update/insert/delete stores modified/new/deleted records
-- using UnitOfWork pattern in the background (https://martinfowler.com/eaaCatalog/unitOfWork.html)
-- dbContext.commit/rollback clear UnitOfWork backlog
-- commit submits changes as a single transaction
