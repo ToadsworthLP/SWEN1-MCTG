@@ -3,7 +3,7 @@ using System.Text;
 
 namespace MCTG.Services
 {
-    internal class CardNameService : ICardNameService
+    public class CardNameService : ICardNameService
     {
         public string GetName(Card card)
         {

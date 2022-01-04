@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Requests
 {
-    internal class EditUserRequest
+    public class EditUserRequest
     {
         public string Name;
         public string Bio;

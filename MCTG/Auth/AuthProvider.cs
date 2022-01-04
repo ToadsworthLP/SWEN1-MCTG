@@ -4,7 +4,7 @@ using Rest;
 
 namespace MCTG.Auth
 {
-    internal class AuthProvider : IAuthProvider
+    public class AuthProvider : IAuthProvider
     {
         public static User? CurrentUser { get { return currentUser.Value; } }
 

@@ -2,7 +2,7 @@
 
 namespace MCTG.Gameplay
 {
-    internal class CardTypeRegistry
+    public class CardTypeRegistry
     {
         private readonly Dictionary<string, ICardType> cardTypes;
 

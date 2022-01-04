@@ -2,7 +2,7 @@
 
 namespace MCTG.Responses
 {
-    internal class CardInfoResponse
+    public class CardInfoResponse
     {
         public Guid Id;
         public string Name;

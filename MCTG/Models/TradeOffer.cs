@@ -3,7 +3,7 @@ using MCTG.Gameplay;
 
 namespace MCTG.Models
 {
-    internal record TradeOffer : DbRecord
+    public record TradeOffer : DbRecord
     {
         public Guid Offered { get; set; }
         public CardCategory Category { get; set; }

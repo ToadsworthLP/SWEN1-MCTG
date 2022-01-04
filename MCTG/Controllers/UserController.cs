@@ -12,7 +12,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/users")]
-    internal class UserController
+    public class UserController
     {
         private readonly AppDbContext db;
         private readonly IPasswordHashService passwordHashService;

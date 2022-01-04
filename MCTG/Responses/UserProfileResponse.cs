@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Responses
 {
-    internal class UserProfileResponse
+    public class UserProfileResponse
     {
         public string Username;
         public string? Bio;

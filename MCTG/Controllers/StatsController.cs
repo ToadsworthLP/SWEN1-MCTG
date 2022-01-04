@@ -8,7 +8,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/stats")]
-    internal class StatsController
+    public class StatsController
     {
         private readonly AppDbContext db;
 

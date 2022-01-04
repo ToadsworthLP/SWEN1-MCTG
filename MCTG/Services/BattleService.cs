@@ -5,20 +5,19 @@ using MCTG.Models;
 
 namespace MCTG.Services
 {
-    internal class BattleService : IBattleService
+    public class BattleService : IBattleService
     {
         private readonly CardTypeRegistry cardTypeRegistry;
         private readonly ICardNameService cardNameService;
         private readonly ICardElementDamageCalculator cardElementDamageCalculator;
         private readonly Random random;
 
-        public BattleService(CardTypeRegistry cardTypeRegistry, ICardNameService cardNameService, ICardElementDamageCalculator cardElementDamageCalculator)
+        public BattleService(CardTypeRegistry cardTypeRegistry, ICardNameService cardNameService, ICardElementDamageCalculator cardElementDamageCalculator, Random random)
         {
             this.cardTypeRegistry = cardTypeRegistry;
             this.cardNameService = cardNameService;
             this.cardElementDamageCalculator = cardElementDamageCalculator;
-
-            random = new Random();
+            this.random = random;
         }
 
         public BattleSummary Battle(string name1, IEnumerable<Card> startDeck1, string name2, IEnumerable<Card> startDeck2)

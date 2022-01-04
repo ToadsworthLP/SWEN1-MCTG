@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay.CardTypes
 {
-    internal class Spell : ICardType
+    public class Spell : ICardType
     {
         public CardCategory Category => CardCategory.SPELL;
 

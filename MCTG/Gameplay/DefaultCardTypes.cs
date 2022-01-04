@@ -2,7 +2,7 @@
 
 namespace MCTG.Gameplay
 {
-    internal static class DefaultCardTypes
+    public static class DefaultCardTypes
     {
         public static void AddDefaultCardTypes(this CardTypeRegistry cardTypeRegistry)
         {

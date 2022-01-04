@@ -2,7 +2,7 @@
 
 namespace MCTG.Services
 {
-    internal interface IDeckService
+    public interface IDeckService
     {
         IEnumerable<Card> GetUserDeck(User user);
         IEnumerable<DeckEntry> GetUserDeckEntries(User user);

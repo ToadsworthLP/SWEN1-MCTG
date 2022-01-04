@@ -10,7 +10,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/transactions/packages")]
-    internal class PackageTransactionController
+    public class PackageTransactionController
     {
         private readonly AppDbContext db;
 

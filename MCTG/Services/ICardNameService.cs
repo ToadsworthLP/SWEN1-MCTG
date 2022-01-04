@@ -2,7 +2,7 @@
 
 namespace MCTG.Services
 {
-    internal interface ICardNameService
+    public interface ICardNameService
     {
         string GetName(Card card);
     }

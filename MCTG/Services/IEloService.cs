@@ -2,7 +2,7 @@
 
 namespace MCTG.Services
 {
-    internal interface IEloService
+    public interface IEloService
     {
         void UpdateElo(User winner, User loser);
     }

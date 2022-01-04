@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Responses
 {
-    internal class BattleResponse
+    public class BattleResponse
     {
         public Guid? Winner;
         public Guid? Loser;

@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay.CardTypes
 {
-    internal class Goblin : ICardType
+    public class Goblin : ICardType
     {
         public CardCategory Category => CardCategory.MONSTER;
 

@@ -2,7 +2,7 @@
 
 namespace MCTG.Models
 {
-    internal record PackageEntry : DbRecord
+    public record PackageEntry : DbRecord
     {
         public Guid Package { get; set; }
         public Guid Card { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay.CardTypes
 {
-    internal interface ICardType
+    public interface ICardType
     {
         CardCategory Category { get; }
         CardElement Element { get; }

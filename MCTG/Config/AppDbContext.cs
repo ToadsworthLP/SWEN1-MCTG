@@ -5,7 +5,7 @@ using MCTG.Models;
 
 namespace MCTG.Config
 {
-    internal class AppDbContext : DbContext
+    public class AppDbContext : DbContext
     {
 
         public DbSet<User> Users;

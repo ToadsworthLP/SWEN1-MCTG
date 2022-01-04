@@ -11,7 +11,7 @@ using System.Text;
 namespace MCTG.Controllers
 {
     [Route("/deck")]
-    internal class DeckController
+    public class DeckController
     {
         private readonly AppDbContext db;
         private readonly ICardNameService cardNameService;

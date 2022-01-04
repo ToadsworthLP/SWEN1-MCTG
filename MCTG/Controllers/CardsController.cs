@@ -11,7 +11,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/cards")]
-    internal class CardsController
+    public class CardsController
     {
         private readonly AppDbContext db;
         private readonly ICardNameService cardNameService;

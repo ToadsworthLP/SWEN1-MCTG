@@ -1,4 +1,4 @@
 ﻿namespace MCTG.Gameplay
 {
-    internal enum CardCategory { MONSTER, SPELL }
+    public enum CardCategory { MONSTER, SPELL }
 }

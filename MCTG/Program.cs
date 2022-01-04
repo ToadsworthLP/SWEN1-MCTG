@@ -41,6 +41,8 @@ namespace MCTG
             cardTypeRegistry.AddDefaultCardTypes();
             server.AddSingletonInstance(cardTypeRegistry);
 
+            server.AddSingletonInstance(new Random());
+
             server.AddAuth<AuthProvider>();
 
             server.Start();

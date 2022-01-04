@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Auth
 {
-    internal enum Role
+    public enum Role
     {
         USER, ADMIN
     }

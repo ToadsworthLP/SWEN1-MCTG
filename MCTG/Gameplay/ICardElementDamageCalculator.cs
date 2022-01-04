@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay
 {
-    internal interface ICardElementDamageCalculator
+    public interface ICardElementDamageCalculator
     {
         double GetDamageMultiplier(CardElement attacker, CardElement defender);
     }

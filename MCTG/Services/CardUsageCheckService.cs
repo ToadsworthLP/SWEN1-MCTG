@@ -4,7 +4,7 @@ using MCTG.Models;
 
 namespace MCTG.Services
 {
-    internal class CardUsageCheckService : ICardUsageCheckService
+    public class CardUsageCheckService : ICardUsageCheckService
     {
         private readonly AppDbContext db;
 

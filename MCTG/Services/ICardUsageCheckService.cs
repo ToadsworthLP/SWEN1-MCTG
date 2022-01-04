@@ -2,7 +2,7 @@
 
 namespace MCTG.Services
 {
-    internal interface ICardUsageCheckService
+    public interface ICardUsageCheckService
     {
         bool IsInDeck(Card card);
         bool IsInTradeOffer(Card card);

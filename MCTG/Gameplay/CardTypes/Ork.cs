@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay.CardTypes
 {
-    internal class Ork : ICardType
+    public class Ork : ICardType
     {
         public CardCategory Category => CardCategory.MONSTER;
 

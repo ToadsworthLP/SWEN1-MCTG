@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Responses
 {
-    internal class UserStatsResponse
+    public class UserStatsResponse
     {
         public int BattleCount;
         public int Elo;

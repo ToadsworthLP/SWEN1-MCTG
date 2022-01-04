@@ -3,7 +3,7 @@ using System.Text;
 
 namespace MCTG.Services
 {
-    internal class PasswordHashService : IPasswordHashService
+    public class PasswordHashService : IPasswordHashService
     {
         public byte[] Hash(string input)
         {

@@ -1,4 +1,4 @@
 ﻿namespace MCTG.Gameplay
 {
-    internal enum CardElement { NORMAL, FIRE, WATER }
+    public enum CardElement { NORMAL, FIRE, WATER }
 }

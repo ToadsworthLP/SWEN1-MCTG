@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay.CardTypes
 {
-    internal class Wizard : ICardType
+    public class Wizard : ICardType
     {
         public CardCategory Category => CardCategory.MONSTER;
 

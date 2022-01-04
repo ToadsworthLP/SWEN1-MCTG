@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Requests
 {
-    internal class LoginUserRequest
+    public class LoginUserRequest
     {
         public string Username;
         public string Password;

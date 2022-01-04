@@ -11,7 +11,7 @@ using static MCTG.Responses.ScoreboardResponse;
 namespace MCTG.Controllers
 {
     [Route("/score")]
-    internal class ScoreboardController
+    public class ScoreboardController
     {
         private readonly AppDbContext db;
 

@@ -3,7 +3,7 @@ using MCTG.Auth;
 
 namespace MCTG.Models
 {
-    internal record User : DbRecord
+    public record User : DbRecord
     {
         public string Username { get; set; }
         public byte[] PasswordHash { get; set; }

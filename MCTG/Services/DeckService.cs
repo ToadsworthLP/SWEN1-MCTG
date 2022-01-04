@@ -4,7 +4,7 @@ using MCTG.Models;
 
 namespace MCTG.Services
 {
-    internal class DeckService : IDeckService
+    public class DeckService : IDeckService
     {
         private AppDbContext db;
 

@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay
 {
-    internal class BattleSummary
+    public class BattleSummary
     {
         public BattleResult Result { get; set; }
         public List<string> Log { get; set; }

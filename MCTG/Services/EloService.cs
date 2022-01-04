@@ -3,7 +3,7 @@ using MCTG.Models;
 
 namespace MCTG.Services
 {
-    internal class EloService : IEloService
+    public class EloService : IEloService
     {
         private readonly AppDbContext db;
 

@@ -2,7 +2,7 @@
 
 namespace MCTG.Requests
 {
-    internal class AddTradeOfferRequest
+    public class AddTradeOfferRequest
     {
         public Guid? Id;
         public Guid CardToTrade;

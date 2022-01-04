@@ -13,7 +13,6 @@ namespace Rest.Test
         [TestCase("GET /test HTTP/1.1\nContent-Length: 29\n\n{ 'Content': 'Hello World!' }", Method.GET, "/test", "{ 'Content': 'Hello World!' }")]
         [TestCase("GET /test/ HTTP/1.1\nContent-Length: 29\n\n{ 'Content': 'Hello World!' }", Method.GET, "/test", "{ 'Content': 'Hello World!' }")]
         [TestCase("POST /test HTTP/1.1\nContent-Length: 26\n\n{ 'Content': 'Some data' }", Method.POST, "/test", "{ 'Content': 'Some data' }")]
-        [Parallelizable(ParallelScope.All)]
         public void ParseValidHttpRequest(string request, Method method, string path, string content)
         {
             StreamReader reader = new StreamReader(new MemoryStream(Encoding.ASCII.GetBytes(request)));
@@ -31,7 +30,6 @@ namespace Rest.Test
         [TestCase("GET /test?a HTTP/1.1\nContent-Length: 0", "a", "")]
         [TestCase("GET /test?a=b HTTP/1.1\nContent-Length: 0", "a", "b")]
         [TestCase("GET /test?a=%C3%A4%C3%BC%C3%B6%C3%9F HTTP/1.1\nContent-Length: 0", "a", "δόφί")]
-        [Parallelizable(ParallelScope.All)]
         public void TestQueryParameters(string request, string? key, string? value)
         {
             StreamReader reader = new StreamReader(new MemoryStream(Encoding.ASCII.GetBytes(request)));
@@ -65,7 +63,6 @@ namespace Rest.Test
         [TestCase("aaaaaaaaaaaaaaaa")]
         [TestCase("GET\nbbbbbbbbbbbbbbbb")]
         [TestCase("xxx /test HTTP/1.1\nContent-Length: 0")]
-        [Parallelizable(ParallelScope.All)]
         public void ParseInvalidHttpRequest(string request)
         {
             StreamReader reader = new StreamReader(new MemoryStream(Encoding.ASCII.GetBytes(request)));

@@ -14,7 +14,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/trading")]
-    internal class TradeController
+    public class TradeController
     {
         private readonly AppDbContext db;
         private readonly ICardNameService cardNameService;

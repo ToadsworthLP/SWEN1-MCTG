@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Responses
 {
-    internal class ErrorResponse
+    public class ErrorResponse
     {
         public string Error;
 

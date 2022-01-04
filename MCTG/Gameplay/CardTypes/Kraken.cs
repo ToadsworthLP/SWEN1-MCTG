@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay.CardTypes
 {
-    internal class Kraken : ICardType
+    public class Kraken : ICardType
     {
         public CardCategory Category => CardCategory.MONSTER;
 

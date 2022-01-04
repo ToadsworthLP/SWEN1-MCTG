@@ -11,7 +11,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/sessions")]
-    internal class SessionController
+    public class SessionController
     {
         private readonly AppDbContext db;
         private readonly IPasswordHashService passwordHashService;

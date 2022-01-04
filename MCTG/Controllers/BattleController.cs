@@ -12,7 +12,7 @@ using Rest.ResponseTypes;
 namespace MCTG.Controllers
 {
     [Route("/battle")]
-    internal class BattleController
+    public class BattleController
     {
         private readonly AppDbContext db;
         private readonly IBattleService battleService;

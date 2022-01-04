@@ -2,7 +2,7 @@
 
 namespace MCTG.Models
 {
-    internal record Card : DbRecord
+    public record Card : DbRecord
     {
         public string? Name { get; set; }
         public double Damage { get; set; }

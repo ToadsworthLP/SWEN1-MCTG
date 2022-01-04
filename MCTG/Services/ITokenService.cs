@@ -2,7 +2,7 @@
 
 namespace MCTG.Services
 {
-    internal interface ITokenService
+    public interface ITokenService
     {
         public string GenerateToken(User user);
         public User? ReadToken(string token);

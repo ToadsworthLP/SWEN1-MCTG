@@ -2,7 +2,7 @@
 
 namespace MCTG.Models
 {
-    internal record Package : DbRecord
+    public record Package : DbRecord
     {
         public int Price { get; set; }
 

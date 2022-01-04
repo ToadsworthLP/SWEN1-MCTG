@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Responses
 {
-    internal class ScoreboardResponse
+    public class ScoreboardResponse
     {
         public IEnumerable<ScoreboardEntry> Entries;
 
@@ -9,6 +9,6 @@
             Entries = entries;
         }
 
-        internal record ScoreboardEntry(int Place, string Name, int Elo);
+        public record ScoreboardEntry(int Place, string Name, int Elo);
     }
 }

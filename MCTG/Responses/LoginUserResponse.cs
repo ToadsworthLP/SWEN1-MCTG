@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Responses
 {
-    internal class LoginUserResponse
+    public class LoginUserResponse
     {
         public string Token;
 

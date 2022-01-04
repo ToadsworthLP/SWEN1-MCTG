@@ -4,7 +4,7 @@ using MCTG.Models;
 
 namespace MCTG.Services
 {
-    internal class TokenService : ITokenService
+    public class TokenService : ITokenService
     {
         private readonly AppDbContext db;
 

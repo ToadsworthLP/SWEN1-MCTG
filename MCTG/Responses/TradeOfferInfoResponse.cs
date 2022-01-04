@@ -2,7 +2,7 @@
 
 namespace MCTG.Responses
 {
-    internal class TradeOfferInfoResponse
+    public class TradeOfferInfoResponse
     {
         public Guid Partner;
         public CardInfoResponse Card;

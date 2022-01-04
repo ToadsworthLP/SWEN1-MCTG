@@ -2,7 +2,7 @@
 
 namespace MCTG.Models
 {
-    internal record LobbyEntry : DbRecord
+    public record LobbyEntry : DbRecord
     {
         public Guid Opponent { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Requests
 {
-    internal class AddPackageRequest
+    public class AddPackageRequest
     {
         public Guid? Id;
         public string? Name;

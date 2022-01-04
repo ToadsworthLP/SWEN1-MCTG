@@ -1,6 +1,6 @@
 ﻿namespace MCTG.Gameplay
 {
-    internal class DefaultCardElementDamageCalculator : ICardElementDamageCalculator
+    public class DefaultCardElementDamageCalculator : ICardElementDamageCalculator
     {
         private double[,] multipliers = new double[3, 3];
         private int elementCount;
